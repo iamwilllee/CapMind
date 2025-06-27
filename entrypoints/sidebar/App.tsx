@@ -9,14 +9,12 @@ import {
   VocabularyTab,
   SettingsTab,
   type TabType,
-  type Word
 } from './components';
 
 export default () => {
   const [captureData, setCaptureData] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [isCapturing, setIsCapturing] = useState(false);
-  const [savedWords, setSavedWords] = useState<Word[]>([]);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -73,7 +71,7 @@ export default () => {
           />
         );
       case 'vocabulary':
-        return <VocabularyTab savedWords={savedWords} />;
+        return <VocabularyTab />;
       case 'settings':
         return <SettingsTab />;
       default:
