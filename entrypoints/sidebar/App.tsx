@@ -28,8 +28,17 @@ export default () => {
       }
     };
 
+    // 监听切换到设置页面的事件
+    const handleSwitchToSettings = () => {
+      setActiveTab('settings');
+    };
+
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener('switchToSettings', handleSwitchToSettings);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('switchToSettings', handleSwitchToSettings);
+    };
   }, []);
 
   const handleSmartCapture = () => {

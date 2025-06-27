@@ -21,6 +21,34 @@ export interface VisionAPIResponse {
   }>;
 }
 
+export interface OCRSpaceResponse {
+  ParsedResults: Array<{
+    TextOverlay: {
+      Lines: Array<{
+        LineText: string;
+        Words: Array<{
+          WordText: string;
+          Left: number;
+          Top: number;
+          Height: number;
+          Width: number;
+        }>;
+      }>;
+      HasOverlay: boolean;
+      Message: string;
+    };
+    TextOrientation: string;
+    FileParseExitCode: number;
+    ParsedText: string;
+    ErrorMessage?: string;
+    ErrorDetails?: string;
+  }>;
+  OCRExitCode: number;
+  IsErroredOnProcessing: boolean;
+  ProcessingTimeInMilliseconds: string;
+  SearchablePDFURL?: string;
+}
+
 /**
  * Google Vision API配置
  */
@@ -40,6 +68,19 @@ async function getAPIKey(): Promise<string> {
 }
 
 /**
+ * 获取OCR.space API密钥
+ */
+async function getOCRSpaceAPIKey(): Promise<string> {
+  try {
+    const result = await chrome.storage.sync.get(['ocrSpaceApiKey']);
+    return result.ocrSpaceApiKey || '';
+  } catch (error) {
+    console.error('获取OCR.space API密钥失败:', error);
+    return '';
+  }
+}
+
+/**
  * 设置API密钥
  */
 export async function setAPIKey(apiKey: string): Promise<void> {
@@ -48,6 +89,18 @@ export async function setAPIKey(apiKey: string): Promise<void> {
   } catch (error) {
     console.error('设置API密钥失败:', error);
     throw new Error('设置API密钥失败');
+  }
+}
+
+/**
+ * 设置OCR.space API密钥
+ */
+export async function setOCRSpaceAPIKey(apiKey: string): Promise<void> {
+  try {
+    await chrome.storage.sync.set({ ocrSpaceApiKey: apiKey });
+  } catch (error) {
+    console.error('设置OCR.space API密钥失败:', error);
+    throw new Error('设置OCR.space API密钥失败');
   }
 }
 
@@ -237,6 +290,59 @@ export function extractEntities(text: string): string[] {
 }
 
 /**
+ * 使用OCR.space API进行OCR识别
+ */
+export async function analyzeImageWithOCRSpace(imageDataUrl: string): Promise<string> {
+  try {
+    const apiKey = await getOCRSpaceAPIKey();
+    
+    if (!apiKey) {
+      throw new Error('请先设置OCR.space API密钥');
+    }
+    
+    // 将DataURL转换为Blob
+    const response = await fetch(imageDataUrl);
+    const blob = await response.blob();
+    
+    // 创建FormData
+    const formData = new FormData();
+    formData.append('file', blob, 'image.png');
+    formData.append('apikey', apiKey);
+    formData.append('language', 'chs'); // 默认英文，可以根据需要调整
+    formData.append('isOverlayRequired', 'false');
+    formData.append('detectOrientation', 'true');
+    formData.append('scale', 'true');
+    formData.append('OCREngine', '2'); // 使用Engine 2，支持更多语言
+    
+    const ocrResponse = await fetch('https://api.ocr.space/parse/image', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!ocrResponse.ok) {
+      throw new Error(`OCR.space API请求失败: ${ocrResponse.status} ${ocrResponse.statusText}`);
+    }
+    
+    const data: OCRSpaceResponse = await ocrResponse.json();
+    
+    if (data.IsErroredOnProcessing) {
+      throw new Error(`OCR处理失败: ${data.ParsedResults[0]?.ErrorMessage || '未知错误'}`);
+    }
+    
+    // 提取识别的文本
+    if (data.ParsedResults && data.ParsedResults.length > 0) {
+      return data.ParsedResults[0].ParsedText || '';
+    }
+    
+    return '';
+    
+  } catch (error) {
+    console.error('OCR.space分析失败:', error);
+    throw error;
+  }
+}
+
+/**
  * 分析图片并返回详细结果
  */
 export async function analyzeImageDetailed(imageDataUrl: string): Promise<AIAnalysisResult> {
@@ -259,5 +365,129 @@ export async function analyzeImageDetailed(imageDataUrl: string): Promise<AIAnal
       language: 'unknown',
       entities: []
     };
+  }
+}
+
+/**
+ * 使用OCR.space进行图片分析并返回详细结果
+ */
+export async function analyzeImageWithOCRSpaceDetailed(imageDataUrl: string): Promise<AIAnalysisResult> {
+  try {
+    const text = await analyzeImageWithOCRSpace(imageDataUrl);
+    const language = detectLanguage(text);
+    const entities = extractEntities(text);
+    
+    return {
+      text,
+      confidence: text.length > 0 ? 0.9 : 0.1,
+      language,
+      entities
+    };
+  } catch (error) {
+    console.error('OCR.space详细分析失败:', error);
+    return {
+      text: '',
+      confidence: 0,
+      language: 'unknown',
+      entities: []
+    };
+  }
+}
+
+/**
+ * 获取DeepSeek API密钥
+ */
+async function getDeepSeekAPIKey(): Promise<string> {
+  try {
+    const result = await chrome.storage.sync.get(['deepseek_api_key']);
+    return result.deepseek_api_key || '';
+  } catch (error) {
+    console.error('获取DeepSeek API密钥失败:', error);
+    return '';
+  }
+}
+
+/**
+ * 使用DeepSeek AI总结文本
+ */
+export async function summarizeText(text: string): Promise<string> {
+  try {
+    const apiKey = await getDeepSeekAPIKey();
+    
+    if (!apiKey) {
+      throw new Error('请先设置DeepSeek API密钥');
+    }
+    
+    if (!text || text.trim().length === 0) {
+      return '未检测到文本内容';
+    }
+    
+    const prompt = `请对以下OCR识别的文本进行智能总结，要求：
+1. 提取关键信息和要点
+2. 保持简洁明了
+3. 如果是英文内容，请提供中文翻译
+4. 如果包含专业术语，请简要解释
+
+文本内容：
+${text}`;
+    
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`DeepSeek API请求失败: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.choices[0]?.message?.content || '总结生成失败';
+    
+  } catch (error) {
+    console.error('文本总结失败:', error);
+    throw error;
+  }
+}
+
+/**
+ * OCR + AI总结的完整流程
+ */
+export async function ocrAndSummarize(imageDataUrl: string): Promise<{ ocrText: string; summary: string }> {
+  try {
+    // 第一步：OCR识别
+    const ocrText = await analyzeImageWithOCRSpace(imageDataUrl);
+    
+    if (!ocrText || ocrText.trim().length === 0) {
+      return {
+        ocrText: '',
+        summary: '未检测到文本内容'
+      };
+    }
+    
+    // 第二步：AI总结
+    const summary = await summarizeText(ocrText);
+    
+    return {
+      ocrText,
+      summary
+    };
+    
+  } catch (error) {
+    console.error('OCR和总结流程失败:', error);
+    throw error;
   }
 }

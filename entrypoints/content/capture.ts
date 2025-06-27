@@ -5,6 +5,7 @@ export interface CaptureArea {
   top: number;
   width: number;
   height: number;
+  devicePixelRatio?: number;
 }
 
 export class ScreenCapture {
@@ -177,17 +178,31 @@ export class ScreenCapture {
     e.preventDefault();
     e.stopPropagation();
     
-    // 获取元素的位置和尺寸
+    // 获取元素的位置和尺寸（相对于视口）
     const rect = this.highlightedElement.getBoundingClientRect();
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // 确保截图区域在可见范围内
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // 计算实际的截图区域（限制在视口内）
+    const left = Math.max(0, rect.left);
+    const top = Math.max(0, rect.top);
+    const right = Math.min(viewportWidth, rect.right);
+    const bottom = Math.min(viewportHeight, rect.bottom);
     
     const area: CaptureArea = {
-      left: rect.left + scrollX,
-      top: rect.top + scrollY,
-      width: rect.width,
-      height: rect.height
+      left: left,
+      top: top,
+      width: right - left,
+      height: bottom - top
     };
+    
+    // 检查截图区域是否有效
+    if (area.width <= 0 || area.height <= 0) {
+      console.warn('选中的元素不在可见区域内');
+      return;
+    }
     
     // 执行截图
     this.captureSelectedArea(area);
@@ -200,10 +215,16 @@ export class ScreenCapture {
   }
 
   private captureSelectedArea(area: CaptureArea) {
-    // 发送截图请求到background script
+    // 获取设备像素比
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    
+    // 发送截图请求到background script，包含设备像素比信息
     chrome.runtime.sendMessage({
       action: 'captureArea',
-      area: area
+      area: {
+        ...area,
+        devicePixelRatio
+      }
     });
     
     this.cancel();

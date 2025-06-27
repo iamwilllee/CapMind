@@ -32,6 +32,12 @@ export class SidebarManager {
 
   private async handleSmartCapture() {
     try {
+      // 隐藏侧边栏以便截图
+      this.hide();
+      
+      // 等待侧边栏隐藏动画完成
+      await new Promise(resolve => setTimeout(resolve, 350));
+      
       // 发送消息给background script开始智能截图
       const response = await chrome.runtime.sendMessage({
         action: 'START_CAPTURE'
@@ -42,6 +48,8 @@ export class SidebarManager {
       }
     } catch (error) {
       console.error('Smart capture failed:', error);
+      // 如果出错，重新显示侧边栏
+      this.show();
     }
   }
 

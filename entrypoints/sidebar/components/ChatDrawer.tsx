@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Settings, MessageCircle } from 'lucide-react';
+import { X, Send, MessageCircle } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -68,7 +68,6 @@ const Typewriter: React.FC<TypewriterProps> = ({ text, speed = 30, onComplete })
 };
 
 export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
-  const [showSettings, setShowSettings] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [model, setModel] = useState('deepseek-chat');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -92,26 +91,15 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         console.error('加载设置失败:', error);
       }
     };
-    loadApiKey();
-  }, []);
+      loadApiKey();
+    }, []);
 
   useEffect(() => {
     // 自动滚动到最新消息
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSaveSettings = async () => {
-    try {
-      await chrome.storage.sync.set({
-        deepseek_api_key: apiKey,
-        ai_model: model
-      });
-      setShowSettings(false);
-    } catch (error) {
-      console.error('保存设置失败:', error);
-      alert('保存设置失败，请重试');
-    }
-  };
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -119,8 +107,11 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const sendMessage = async (content: string) => {
     if (!apiKey) {
-      alert('请先在设置中配置 DeepSeek API Key');
-      setShowSettings(true);
+      const shouldGoToSettings = confirm('请先在设置中配置 DeepSeek API Key。是否现在前往设置页面？');
+      if (shouldGoToSettings) {
+        onClose();
+        window.dispatchEvent(new CustomEvent('switchToSettings'));
+      }
       return;
     }
 
@@ -209,55 +200,13 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             <h2 className="text-lg font-semibold">AI 助手</h2>
           </div>
           <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSettings(!showSettings)}
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Settings Panel */}
-        {showSettings && (
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-sm font-medium mb-3">设置</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  DeepSeek API Key
-                </label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="输入你的 DeepSeek API Key"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
-                  模型
-                </label>
-                <select
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="deepseek-chat">DeepSeek Chat</option>
-                  <option value="deepseek-coder">DeepSeek Coder</option>
-                </select>
-              </div>
-              <Button onClick={handleSaveSettings} size="sm" className="w-full">
-                保存设置
-              </Button>
-            </div>
-          </div>
-        )}
+
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">

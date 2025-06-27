@@ -150,10 +150,11 @@ export default defineBackground(() => {
       const blob = await response.blob();
       const imageBitmap = await createImageBitmap(blob);
       
-      // 计算设备像素比
-      const devicePixelRatio = 1; // background中默认为1
+      // 获取实际的设备像素比
+      // Chrome的captureVisibleTab会根据设备像素比返回高分辨率图片
+      const devicePixelRatio = area.devicePixelRatio || 1;
       
-      // 裁剪图片
+      // 裁剪图片 - 使用设备像素比调整坐标和尺寸
       ctx.drawImage(
         imageBitmap,
         area.left * devicePixelRatio,

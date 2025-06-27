@@ -1,4 +1,8 @@
-import { Camera, Scissors, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { Camera, Scissors, Zap, FileText, Brain, Loader2, Download } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { ocrAndSummarize } from '../../../../lib/ai-service';
 
 interface CaptureTabProps {
   captureData: string | null;
@@ -7,6 +11,48 @@ interface CaptureTabProps {
 }
 
 export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: CaptureTabProps) => {
+  const [ocrText, setOcrText] = useState<string>('');
+  const [aiSummary, setAiSummary] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string>('');
+
+  const handleOCRAnalysis = async () => {
+    if (!captureData) return;
+    
+    setIsProcessing(true);
+    setError('');
+    setOcrText('');
+    setAiSummary('');
+    
+    try {
+      const result = await ocrAndSummarize(captureData);
+      setOcrText(result.ocrText);
+      setAiSummary(result.summary);
+    } catch (err) {
+      console.error('OCR分析失败:', err);
+      setError(err instanceof Error ? err.message : '分析失败，请重试');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDownloadImage = () => {
+    if (!captureData) return;
+    
+    try {
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.href = captureData;
+      link.download = `capmind-capture-${new Date().getTime()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('下载失败:', error);
+      setError('下载失败，请重试');
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex items-center space-x-2 mb-4">
@@ -42,13 +88,74 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
             />
           </div>
           <div className="flex space-x-2">
-            <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
-              AI 分析
+            <button 
+              onClick={handleOCRAnalysis}
+              disabled={isProcessing}
+              className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                isProcessing 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              } text-white`}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>分析中...</span>
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4" />
+                  <span>OCR 分析</span>
+                </>
+              )}
             </button>
-            <button className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors">
-              保存图片
+            <button 
+              onClick={handleDownloadImage}
+              className="flex-1 flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              <span>保存图片</span>
             </button>
           </div>
+          
+          {/* 错误提示 */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+          
+          {/* OCR识别结果 */}
+          {ocrText && (
+            <div className="mt-4 space-y-3">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <FileText className="w-4 h-4 text-gray-600" />
+                  <h4 className="font-medium text-gray-900">识别文本</h4>
+                </div>
+                <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                  {ocrText}
+                </div>
+              </div>
+              
+              {/* AI总结 */}
+              {aiSummary && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Brain className="w-4 h-4 text-blue-600" />
+                    <h4 className="font-medium text-blue-900">AI 总结</h4>
+                  </div>
+                  <div className="prose prose-sm prose-blue max-w-none text-blue-800">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                    >
+                      {aiSummary}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
       
