@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle } from 'lucide-react';
+import { useTranslation } from '../../../src/i18n';
 import { Button } from '../../../components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -78,6 +79,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [includePageContent, setIncludePageContent] = useState(true);
   const [pageContent, setPageContent] = useState('');
   const [showContextHint, setShowContextHint] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // 加载保存的 API Key
@@ -98,12 +100,12 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     }, []);
 
   useEffect(() => {
-    // 自动滚动到最新消息
+    // Auto scroll to latest message
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
-    // 获取页面内容
+    // Get page content
     const getPageContent = async () => {
       try {
         const response = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -114,7 +116,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           }
         }
       } catch (error) {
-        console.error('获取页面内容失败:', error);
+        console.error(t('chat.errors.getPageContentFailed'), error);
       }
     };
 
@@ -131,7 +133,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const sendMessage = async (content: string) => {
     if (!apiKey) {
-      const shouldGoToSettings = confirm('请先在设置中配置 DeepSeek API Key。是否现在前往设置页面？');
+      const shouldGoToSettings = confirm(t('chat.errors.noApiKey'));
       if (shouldGoToSettings) {
         onClose();
         window.dispatchEvent(new CustomEvent('switchToSettings'));
@@ -139,10 +141,10 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       return;
     }
 
-    // 构建消息内容，如果启用了页面内容上下文则包含页面内容
+    // Build message content, include page content if context is enabled
     let messageContent = content;
     if (includePageContent && pageContent) {
-      messageContent = `${content}\n\n--- 页面上下文 ---\n${pageContent}`;
+      messageContent = `${content}\n\n--- ${t('chat.context.pageContext')} ---\n${pageContent}`;
     }
 
     const userMessage: Message = {
@@ -157,9 +159,9 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // 构建API请求的消息列表
+      // Build API request message list
       const apiMessages = [...messages, userMessage].map(msg => {
-        // 只有当前消息需要包含页面内容上下文
+        // Only current message needs page content context
         if (msg.id === userMessage.id && includePageContent && pageContent) {
           return {
             role: msg.role,
@@ -187,14 +189,14 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`API 请求失败: ${response.status}`);
+        throw new Error(t('chat.errors.apiRequestFailed', { status: response.status }));
       }
 
       const data = await response.json();
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.choices[0]?.message?.content || '抱歉，我无法回答这个问题。',
+        content: data.choices[0]?.message?.content || t('chat.errors.noResponse'),
         timestamp: new Date(),
       };
 
@@ -204,7 +206,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: '抱歉，发生了错误。请检查你的 API Key 是否正确，或稍后再试。',
+        content: t('chat.error'),
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -241,7 +243,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             <div className="p-2 bg-blue-100 rounded-xl shadow-sm">
               <MessageCircle className="w-5 h-5 text-blue-600" />
             </div>
-            <h2 className="text-lg font-bold text-gray-900">AI 助手</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('chat.title')}</h2>
           </div>
           <Button 
             variant="ghost" 
@@ -262,12 +264,12 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
               <div className="p-4 bg-blue-50 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                 <MessageCircle className="w-10 h-10 text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">开始对话</h3>
-              <p className="text-sm text-gray-500 mb-1">我是您的智能助手，可以帮您：</p>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">{t('chat.welcome.title')}</h3>
+              <p className="text-sm text-gray-500 mb-1">{t('chat.welcome.subtitle')}</p>
               <div className="text-xs text-gray-400 space-y-1 max-w-xs mx-auto">
-                <p>• 解答各种问题</p>
-                <p>• 分析网页内容</p>
-                <p>• 翻译和学习辅助</p>
+                {(t('chat.welcome.features') as string[]).map((feature, index) => (
+                  <p key={index}>• {feature}</p>
+                ))}
               </div>
             </div>
           )}
@@ -324,12 +326,12 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                     className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
                   />
                   <label htmlFor="includeContext" className="text-blue-700 cursor-pointer">
-                    包含页面内容
+                    {t('chat.context.includePageContent')}
                   </label>
                 </div>
                 {includePageContent && pageContent && (
                   <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs">
-                    已获取页面内容
+                    {t('chat.context.pageContentFetched')}
                   </span>
                 )}
               </div>
@@ -349,7 +351,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
             <input
               value={input}
               onChange={handleInputChange}
-              placeholder="输入你的问题..."
+              placeholder={t('chat.placeholder')}
               className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-white shadow-sm h-10"
               disabled={isLoading}
             />

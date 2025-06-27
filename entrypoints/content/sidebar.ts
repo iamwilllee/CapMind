@@ -1,4 +1,4 @@
-// 侧边栏管理模块
+// Sidebar management module
 
 import { createIframeUi } from 'wxt/client';
 
@@ -14,14 +14,14 @@ export class SidebarManager {
   }
 
   private setupEventListeners() {
-    // 监听ESC键关闭侧边栏
+    // Listen for ESC key to close sidebar
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && this.isVisible) {
         this.hide();
       }
     });
 
-    // 监听来自iframe的消息
+    // Listen for messages from iframe
     window.addEventListener('message', (event) => {
       if (event.data.type === 'START_SMART_CAPTURE') {
         this.handleSmartCapture();
@@ -41,13 +41,13 @@ export class SidebarManager {
 
   private async handleSmartCapture() {
     try {
-      // 隐藏侧边栏以便截图
+      // Hide sidebar for screenshot
       this.hide();
       
-      // 等待侧边栏隐藏动画完成
+      // Wait for sidebar hide animation to complete
       await new Promise(resolve => setTimeout(resolve, 350));
       
-      // 发送消息给background script开始智能截图
+      // Send message to background script to start smart capture
       const response = await chrome.runtime.sendMessage({
         action: 'START_CAPTURE'
       });
@@ -57,7 +57,7 @@ export class SidebarManager {
       }
     } catch (error) {
       console.error('Smart capture failed:', error);
-      // 如果出错，重新显示侧边栏
+      // If error occurs, show sidebar again
       this.show();
     }
   }
@@ -65,7 +65,7 @@ export class SidebarManager {
   create() {
     if (this.ui) return;
 
-    // 使用 createIframeUi 创建 iframe 侧边栏
+    // Use createIframeUi to create iframe sidebar
     this.ui = createIframeUi(this.ctx, {
       page: '/sidebar.html',
       position: 'overlay',
@@ -81,14 +81,14 @@ export class SidebarManager {
           background: white;
         `;
         
-        // 关闭按钮已在App.tsx中实现，无需重复添加
+        // Close button is already implemented in App.tsx, no need to add again
       }
     });
   }
 
   private updateWrapperStyles(wrapper: HTMLElement) {
     if (this.isPinned) {
-      // 钉住模式：侧边栏嵌入页面，页面内容向左移动
+      // Pinned mode: sidebar embedded in page, page content moves left
       wrapper.style.cssText = `
         position: fixed;
         top: 0;
@@ -99,11 +99,11 @@ export class SidebarManager {
         transition: all 0.3s ease-in-out;
       `;
       
-      // 调整页面内容
+      // Adjust page content
       document.body.style.marginRight = '460px';
       document.body.style.transition = 'margin-right 0.3s ease-in-out';
     } else {
-      // 浮动模式：侧边栏覆盖在页面上
+      // Floating mode: sidebar overlays on page
       wrapper.style.cssText = `
         position: fixed;
         top: 0;
@@ -114,7 +114,7 @@ export class SidebarManager {
         transition: right 0.3s ease-in-out;
       `;
       
-      // 恢复页面内容
+      // Restore page content
       document.body.style.marginRight = '0';
     }
   }
@@ -130,7 +130,7 @@ export class SidebarManager {
     
     if (this.ui) {
       this.ui.mount();
-      // 获取 wrapper 元素并设置样式
+      // Get wrapper element and set styles
       setTimeout(() => {
         const wrapper = this.ui.wrapper;
         if (wrapper) {
@@ -144,16 +144,16 @@ export class SidebarManager {
   hide() {
     if (this.ui && this.ui.wrapper) {
       if (this.isPinned) {
-        // 钉住模式下隐藏侧边栏并恢复页面布局
+        // Hide sidebar and restore page layout in pinned mode
         this.ui.wrapper.style.right = '-460px';
         document.body.style.marginRight = '0';
       } else {
-        // 浮动模式下隐藏侧边栏
+        // Hide sidebar in floating mode
         this.ui.wrapper.style.right = '-460px';
       }
       
       this.isVisible = false;
-      // 延迟卸载以允许动画完成
+      // Delay unmounting to allow animation to complete
       setTimeout(() => {
         if (this.ui) {
           this.ui.remove();
@@ -171,14 +171,14 @@ export class SidebarManager {
   }
 
   updateWithCapture(dataUrl: string) {
-    // 通过 postMessage 向 iframe 发送数据
+    // Send data to iframe via postMessage
     if (this.ui && this.ui.iframe) {
       this.ui.iframe.contentWindow?.postMessage({
         type: 'CAPTURE_DATA',
         data: dataUrl
       }, '*');
     }
-    // 如果侧边栏未打开，自动打开它
+    // If sidebar is not open, automatically open it
     if (!this.isVisible) {
       this.show();
     }
@@ -187,12 +187,12 @@ export class SidebarManager {
   togglePinMode() {
     this.isPinned = !this.isPinned;
     
-    // 如果侧边栏当前可见，重新应用样式
+    // If sidebar is currently visible, reapply styles
     if (this.isVisible && this.ui && this.ui.wrapper) {
       this.updateWrapperStyles(this.ui.wrapper);
     }
     
-    // 通知侧边栏组件钉住状态已改变
+    // Notify sidebar component that pin state has changed
     if (this.ui && this.ui.iframe) {
       this.ui.iframe.contentWindow?.postMessage({
         type: 'PIN_MODE_CHANGED',
@@ -202,7 +202,7 @@ export class SidebarManager {
   }
 
   private handleGetCurrentUrl() {
-    // 发送当前页面URL给侧边栏
+    // Send current page URL to sidebar
     if (this.ui && this.ui.iframe) {
       this.ui.iframe.contentWindow?.postMessage({
         type: 'CURRENT_URL_RESPONSE',
@@ -212,7 +212,7 @@ export class SidebarManager {
   }
 
   private handleGetPageContent() {
-    // 获取页面文本内容
+    // Get page text content
     const textElements = document.querySelectorAll(
       'p, h1, h2, h3, h4, h5, h6, span:not([class*="icon"]):not([class*="btn"]):not([class*="nav"]):not([class*="menu"]), div:not([class*="nav"]):not([class*="menu"]):not([class*="header"]):not([class*="footer"]):not([id*="sidebar"]):not([class*="sidebar"]), li, blockquote'
     );
@@ -220,7 +220,7 @@ export class SidebarManager {
     const textContents: string[] = [];
     
     textElements.forEach(element => {
-      // 跳过侧边栏相关元素
+      // Skip sidebar related elements
       if (element.closest('[id*="sidebar"]') || element.closest('[class*="sidebar"]')) {
         return;
       }
@@ -242,10 +242,10 @@ export class SidebarManager {
       }
     });
     
-    // 去重并限制数量
+    // Remove duplicates and limit quantity
     const uniqueTexts = [...new Set(textContents)].slice(0, 15);
     
-    // 发送页面内容给侧边栏
+    // Send page content to sidebar
     if (this.ui && this.ui.iframe) {
       this.ui.iframe.contentWindow?.postMessage({
         type: 'PAGE_CONTENT_RESPONSE',
@@ -255,13 +255,13 @@ export class SidebarManager {
   }
 
   private handleGetPageInfo() {
-    // 获取页面标题
+    // Get page title
     const title = document.title;
     
-    // 获取页面favicon
+    // Get page favicon
     let favicon = '';
     
-    // 尝试多种方式获取favicon
+    // Try multiple ways to get favicon
     const iconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement ||
                     document.querySelector('link[rel="shortcut icon"]') as HTMLLinkElement ||
                     document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;
@@ -269,12 +269,12 @@ export class SidebarManager {
     if (iconLink && iconLink.href) {
       favicon = iconLink.href;
     } else {
-      // 如果没有找到，使用默认的favicon路径
+      // If not found, use default favicon path
       const url = new URL(window.location.href);
       favicon = `${url.protocol}//${url.host}/favicon.ico`;
     }
     
-    // 发送页面信息给侧边栏
+    // Send page info to sidebar
     if (this.ui && this.ui.iframe) {
       this.ui.iframe.contentWindow?.postMessage({
         type: 'PAGE_INFO_RESPONSE',

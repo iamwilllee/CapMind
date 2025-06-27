@@ -3,6 +3,7 @@ import { Camera, Scissors, Zap, FileText, Brain, Loader2, Download } from 'lucid
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ocrAndSummarize } from '../../../../lib/ai-service';
+import { useTranslation } from '../../../../src/i18n';
 
 interface CaptureTabProps {
   captureData: string | null;
@@ -11,6 +12,7 @@ interface CaptureTabProps {
 }
 
 export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: CaptureTabProps) => {
+  const { t } = useTranslation();
   const [ocrText, setOcrText] = useState<string>('');
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,8 +31,8 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
       setOcrText(result.ocrText);
       setAiSummary(result.summary);
     } catch (err) {
-      console.error('OCR分析失败:', err);
-      setError(err instanceof Error ? err.message : '分析失败，请重试');
+      console.error('OCR analysis failed:', err);
+      setError(err instanceof Error ? err.message : t('capture.errors.analysisFailed'));
     } finally {
       setIsProcessing(false);
     }
@@ -48,8 +50,8 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error('下载失败:', error);
-      setError('下载失败，请重试');
+      console.error('Download failed:', error);
+      setError(t('capture.errors.downloadFailed'));
     }
   };
 
@@ -57,7 +59,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
     <div className="p-4">
       <div className="flex items-center space-x-2 mb-4">
         <Camera className="w-5 h-5 text-green-600" />
-        <h2 className="text-lg font-semibold text-gray-900">智能截图</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{t('capture.title')}</h2>
       </div>
       
       {/* Smart Capture Button */}
@@ -72,14 +74,14 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
           }`}
         >
           <Scissors className={`w-5 h-5 ${isCapturing ? 'animate-pulse' : ''}`} />
-          <span>{isCapturing ? '正在截图...' : '✂️ 智能元素截图'}</span>
+          <span>{isCapturing ? t('capture.capturing') : t('capture.smartCapture')}</span>
           {!isCapturing && <Zap className="w-4 h-4" />}
         </button>
       </div>
       
       {captureData && (
         <div className="space-y-4">
-          <h3 className="font-medium text-gray-900">截图预览</h3>
+          <h3 className="font-medium text-gray-900">{t('capture.preview')}</h3>
           <div className="border border-gray-200 rounded-lg overflow-hidden">
             <img 
               src={captureData} 
@@ -100,12 +102,12 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
               {isProcessing ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>分析中...</span>
+                  <span>{t('capture.analyzing')}</span>
                 </>
               ) : (
                 <>
                   <FileText className="w-4 h-4" />
-                  <span>OCR 分析</span>
+                  <span>{t('capture.ocrAnalysis')}</span>
                 </>
               )}
             </button>
@@ -114,36 +116,36 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
               className="flex-1 flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
-              <span>保存图片</span>
+              <span>{t('capture.saveImage')}</span>
             </button>
           </div>
           
-          {/* 错误提示 */}
+          {/* Error message */}
           {error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
           
-          {/* OCR识别结果 */}
+          {/* OCR recognition results */}
           {ocrText && (
             <div className="mt-4 space-y-3">
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <div className="flex items-center space-x-2 mb-2">
                   <FileText className="w-4 h-4 text-gray-600" />
-                  <h4 className="font-medium text-gray-900">识别文本</h4>
+                  <h4 className="font-medium text-gray-900">{t('capture.recognizedText')}</h4>
                 </div>
                 <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
                   {ocrText}
                 </div>
               </div>
               
-              {/* AI总结 */}
+              {/* AI summary */}
               {aiSummary && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex items-center space-x-2 mb-2">
                     <Brain className="w-4 h-4 text-blue-600" />
-                    <h4 className="font-medium text-blue-900">AI 总结</h4>
+                    <h4 className="font-medium text-blue-900">{t('capture.aiSummary')}</h4>
                   </div>
                   <div className="prose prose-sm prose-blue max-w-none text-blue-800">
                     <ReactMarkdown 
@@ -162,7 +164,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
       {!captureData && (
         <div className="text-center py-8">
           <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">点击上方按钮开始智能截图</p>
+          <p className="text-gray-500 text-sm">{t('capture.clickToStart')}</p>
         </div>
       )}
     </div>

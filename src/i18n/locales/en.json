@@ -1,0 +1,434 @@
+{
+  "common": {
+    "test": "Test",
+    "save": "Save All Settings",
+    "loading": "Saving...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "error": "Error",
+    "success": "Success",
+    "translating": "Translating",
+    "translate": "Translate",
+    "unknown": "Unknown"
+  },
+  "header": {
+    "pin": "Pin Panel",
+    "unpin": "Unpin Panel"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "capture": "Capture",
+    "translate": "Translate",
+    "settings": "Settings"
+  },
+  "bottomBar": {
+    "askAI": "Ask AI"
+  },
+  "chat": {
+    "title": "AI Assistant",
+    "placeholder": "Type your question...",
+    "error": "Sorry, an error occurred. Please try again later.",
+    "welcome": {
+      "title": "AI Assistant",
+      "subtitle": "I can help you analyze page content and answer questions",
+      "features": [
+        "Smart conversation",
+        "Page content analysis",
+        "Multi-language support"
+      ]
+    },
+    "context": {
+      "includePageContent": "Include page content",
+      "pageContentFetched": "Page content fetched",
+      "pageContext": "Page Context"
+    },
+    "errors": {
+      "getPageContentFailed": "Failed to get page content:",
+      "noApiKey": "Please configure DeepSeek API Key in settings first. Go to settings now?",
+      "apiRequestFailed": "API request failed: {{status}}",
+      "noResponse": "Sorry, I cannot answer this question."
+    }
+  },
+  "overview": {
+    "pageTitle": "Title",
+    "pageUrl": "URL",
+    "pageContent": "Content",
+    "analysisPrompt": "Please analyze the following web content and return a structured summary in the following JSON format:",
+    "webContent": "Web Content",
+    "mainPoints": "Main Points",
+    "keyTopics": "Key Topics",
+    "pageContentAnalysis": "Page Content Analysis",
+    "analyzing": "Analyzing",
+    "refresh": "Refresh",
+    "reanalyze": "Re-analyze",
+    "analyzingPageContent": "Analyzing page content...",
+    "aiAnalyzingInfo": "AI is extracting and analyzing key information from the current webpage",
+    "promptFields": {
+      "title": "Page topic title",
+      "summary": "Concise content summary (2-3 sentences)",
+      "point1": "Point 1",
+      "point2": "Point 2",
+      "point3": "Point 3",
+      "topic1": "Key topic 1",
+      "topic2": "Key topic 2",
+      "topic3": "Key topic 3"
+    },
+    "defaultAnalysis": {
+      "title": "Content Analysis",
+      "aiResult": "AI Analysis Result",
+      "checkDetails": "Please check detailed content",
+      "webContent": "Web Content",
+      "smartAnalysis": "Smart Analysis"
+    },
+    "welcome": {
+      "title": "Welcome to CapMind!",
+      "configRequired": "API Key Configuration Required",
+      "firstTimeMessage": "To use AI features, please configure your DeepSeek API Key in settings first.",
+      "configMessage": "DeepSeek API Key not configured yet. Please go to settings to configure it.",
+      "goToSettings": "Go to Settings",
+      "subtitle": "Your intelligent web browsing assistant",
+      "features": [
+        "Smart content analysis",
+        "Instant translation",
+        "AI Q&A",
+        "Screenshot capture"
+      ],
+      "getStarted": "Get Started"
+    },
+    "featureDescription": {
+      "title": "Feature Description",
+      "autoAnalysis": "When opening the Overview page, AI will automatically analyze current webpage content",
+      "treeStructure": "Analysis results will be displayed in tree structure, including main points and key topics",
+      "refreshButton": "Click the refresh button in the top right to re-analyze page content",
+      "aiTechnology": "Based on DeepSeek AI technology, providing intelligent content understanding"
+    },
+    "aiReady": {
+      "title": "AI Features Ready",
+      "message": "You have successfully configured the API Key and can start using all AI features!"
+    },
+    "errors": {
+      "cannotGetContent": "Cannot get page content",
+      "cannotGetCurrentPage": "Cannot get current page",
+      "apiRequestFailed": "API request failed",
+      "configureApiKey": "Please configure DeepSeek API Key first",
+      "analysisFailedCheckKey": "Page analysis failed, please check if API Key is correct",
+      "checkSettingsFailed": "Check settings failed:",
+      "parseAIResponseFailed": "Parse AI response failed:",
+      "analyzePageFailed": "Analyze page failed:"
+    },
+    "needsSetup": {
+      "title": "Setup Required",
+      "subtitle": "Please configure your API Key in settings to enable AI analysis features",
+      "button": "Go to Settings"
+    },
+    "contentSummary": {
+      "title": "Content Summary",
+      "mainPoints": "Main Points",
+      "keyTopics": "Key Topics"
+    },
+    "pageStructure": {
+      "title": "Page Structure"
+    }
+  },
+  "capture": {
+    "title": "Smart Capture",
+    "smartCapture": "Smart Capture",
+    "capturing": "Capturing...",
+    "preview": "Preview",
+    "analyzing": "Analyzing...",
+    "ocrAnalysis": "OCR Analysis",
+    "saveImage": "Save Image",
+    "recognizedText": "Recognized Text",
+    "aiSummary": "AI Summary",
+    "clickToStart": "Click the button above to start smart capture",
+    "errors": {
+      "analysisFailed": "Analysis failed",
+      "downloadFailed": "Download failed"
+    }
+  },
+  "vocabulary": {
+    "unknownPage": "Unknown Page",
+    "translationProgress": "Translation Progress",
+    "hideOriginal": "Hide Original",
+    "showOriginal": "Show Original",
+    "original": "Original",
+    "translation": "Translation",
+    "readOriginal": "Read Original",
+    "readTranslation": "Read Translation",
+    "readText": "Read Text",
+    "readyToTranslate": "Ready to Translate",
+    "clickToTranslate": "Click the translate button to start translating current page content",
+    "smartLanguageDetection": "Smart Language Detection",
+    "speechSynthesis": "Speech Synthesis",
+      "autoDetect": "Auto Detect",
+    "errors": {
+      "timeout": "Timeout getting page content",
+      "noContent": "No translatable content on the page",
+      "translationFailed": "Translation failed",
+      "pageTranslationFailed": "Page translation failed"
+    }
+  },
+  "common": {
+     "translating": "Translating...",
+     "translate": "Translate",
+     "test": "Test",
+     "loading": "Loading...",
+     "save": "Save"
+   },
+  "settings": {
+     "title": "Settings",
+     "welcome": {
+       "title": "Welcome to CapMind",
+       "subtitle": "For the best experience, please configure your API keys first. Once configured, you'll be able to use all AI features!"
+     },
+     "ai": {
+       "title": "AI Settings",
+       "apiKey": "DeepSeek API Key",
+       "apiKeyPlaceholder": "Enter your DeepSeek API Key",
+       "enterApiKey": "Please enter API Key first",
+       "validating": "Validating...",
+       "testSuccess": "API Key validation successful!",
+       "testFailed": "API Key validation failed, please check if the key is correct",
+       "networkError": "Network error, please check your connection",
+       "getApiKey": "Get API Key",
+       "visitPlatform": "Visit",
+       "deepseekPlatform": "DeepSeek Platform",
+       "model": "AI Model",
+       "models": {
+         "chat": "DeepSeek Chat (General Conversation)",
+         "coder": "DeepSeek Coder (Code Specialized)"
+       }
+     },
+     "ocr": {
+       "apiKey": "OCR.Space API Key",
+       "apiKeyPlaceholder": "Enter your OCR.Space API Key (optional)",
+       "getApiKey": "Get API Key",
+       "visitApi": "Visit",
+       "ocrSpaceApi": "OCR.Space API",
+       "freeLimit": "Free tier: 500 requests/month"
+     },
+     "capture": {
+       "title": "Screenshot Settings",
+       "autoSave": "Auto-save screenshots",
+       "autoSaveDesc": "Automatically save screenshots to downloads folder",
+       "enableAI": "Enable AI analysis",
+       "enableAIDesc": "Perform OCR recognition and AI summary on screenshot content"
+     },
+     "learning": {
+       "title": "Learning Settings",
+       "autoAddWords": "Auto-add new words",
+       "autoAddWordsDesc": "Automatically add new words to vocabulary during translation",
+       "showPhonetics": "Show phonetics",
+       "showPhoneticsDesc": "Display word phonetics in translation results"
+     },
+     "saveSuccess": "Settings saved successfully!",
+       "saveFailed": "Failed to save settings, please try again",
+      "language": {
+        "title": "Language Settings",
+        "interface": "Interface Language"
+      },
+    "welcome": {
+      "title": "Welcome to CapMind!",
+      "subtitle": "To use AI features, please configure your DeepSeek API Key in settings first."
+    },
+    "ai": {
+      "title": "AI Settings",
+      "apiKey": "DeepSeek API Key",
+      "apiKeyPlaceholder": "Enter your DeepSeek API Key",
+      "model": "AI Model",
+      "getApiKey": "Get API Key",
+      "visitPlatform": "Visit",
+      "deepseekPlatform": "DeepSeek Platform",
+      "enterApiKey": "Please enter API Key first",
+      "validating": "Validating API Key...",
+      "testSuccess": "API Key validation successful",
+      "testFailed": "API Key validation failed",
+      "networkError": "Network connection failed",
+      "models": {
+        "chat": "DeepSeek Chat - General conversation model",
+        "coder": "DeepSeek Coder - Code-specific model"
+      }
+    },
+    "ocr": {
+      "apiKey": "OCR Space API Key (Optional)",
+      "apiKeyPlaceholder": "Enter your OCR Space API Key",
+      "getApiKey": "Get API Key",
+      "visitApi": "Visit",
+      "ocrSpaceApi": "OCR Space API",
+      "freeLimit": "Free version: 25,000 requests per month"
+    },
+    "capture": {
+      "title": "Screenshot Settings",
+      "autoSave": "Auto-save screenshots",
+      "autoSaveDesc": "Automatically save screenshots locally after capture",
+      "enableAI": "Enable AI analysis",
+      "enableAIDesc": "Use AI to analyze screenshot content"
+    },
+    "learning": {
+      "title": "Learning Settings",
+      "autoAddWords": "Auto-collect new words",
+      "autoAddWordsDesc": "Automatically collect new words to vocabulary during translation",
+      "showPhonetics": "Show phonetics",
+      "showPhoneticsDesc": "Display international phonetic alphabet in vocabulary cards"
+    },
+    "language": {
+      "title": "Language Settings",
+      "interface": "Interface Language",
+      "chinese": "中文",
+      "english": "English"
+    }
+  },
+  "vocabulary": {
+    "pageInfo": {
+      "title": "Page Title",
+      "url": "Page URL",
+      "unknownPage": "Unknown Page"
+    },
+    "translation": {
+      "progress": "Translation Progress",
+      "autoDetect": "Auto Detect",
+      "chinese": "Chinese",
+      "english": "English",
+      "japanese": "Japanese",
+      "korean": "Korean",
+      "french": "French",
+      "german": "German",
+      "spanish": "Spanish"
+    },
+    "actions": {
+      "showOriginal": "Show Original",
+      "hideOriginal": "Hide Original"
+    },
+    "empty": {
+      "title": "Ready to Translate",
+      "subtitle": "Click the translate button above to start translating the current page content",
+      "features": [
+        "Smart language detection",
+        "Voice reading"
+      ]
+    }
+  },
+  "capture": {
+    "title": "Smart Capture",
+    "smartCapture": "✂️ Smart Element Capture",
+    "capturing": "Capturing...",
+    "preview": "Capture Preview",
+    "analyzing": "Analyzing...",
+    "ocrAnalysis": "OCR Analysis",
+    "saveImage": "Save Image",
+    "recognizedText": "Recognized Text",
+    "aiSummary": "AI Summary",
+    "clickToStart": "Click the button above to start smart capture",
+    "reanalyze": "Re-analyze",
+    "errors": {
+      "analysisFailed": "Analysis failed, please try again",
+      "downloadFailed": "Download failed, please try again"
+    },
+    "empty": {
+      "title": "No capture data",
+      "subtitle": "Use the smart capture feature to extract and analyze content from the current page"
+    }
+  },
+  "overview": {
+    "pageTitle": "Title",
+    "pageUrl": "URL",
+    "pageContent": "Content",
+    "analysisPrompt": "Please analyze the following web content and return a structured summary in the following JSON format:",
+    "webContent": "Web Content",
+    "mainPoints": "Main Points",
+    "keyTopics": "Key Topics",
+    "pageContentAnalysis": "Page Content Analysis",
+    "analyzing": "Analyzing",
+    "refresh": "Refresh",
+    "reanalyze": "Re-analyze",
+    "analyzingPageContent": "Analyzing page content...",
+    "aiAnalyzingInfo": "AI is extracting and analyzing key information from the current webpage",
+    "promptFields": {
+      "title": "Page topic title",
+      "summary": "Concise content summary (2-3 sentences)",
+      "point1": "Point 1",
+      "point2": "Point 2",
+      "point3": "Point 3",
+      "topic1": "Key topic 1",
+      "topic2": "Key topic 2",
+      "topic3": "Key topic 3"
+    },
+    "defaultAnalysis": {
+      "title": "Content Analysis",
+      "aiResult": "AI Analysis Result",
+      "checkDetails": "Please check detailed content",
+      "webContent": "Web Content",
+      "smartAnalysis": "Smart Analysis"
+    },
+    "welcome": {
+      "title": "Welcome to CapMind!",
+      "configRequired": "API Key Configuration Required",
+      "firstTimeMessage": "To use AI features, please configure your DeepSeek API Key in settings first.",
+      "configMessage": "DeepSeek API Key not configured. Please go to settings to configure it.",
+      "goToSettings": "Go to Settings",
+      "subtitle": "Your intelligent web browsing assistant",
+      "features": [
+        "Smart Content Analysis",
+        "Instant Translation",
+        "AI Q&A",
+        "Screenshot Capture"
+      ],
+      "getStarted": "Get Started"
+    },
+    "featureDescription": {
+      "title": "Feature Description",
+      "autoAnalysis": "When opening the Overview page, AI will automatically analyze the current webpage content",
+      "treeStructure": "Analysis results will be displayed in a tree structure, including main points and key topics",
+      "refreshButton": "Click the refresh button in the upper right corner to re-analyze page content",
+      "aiTechnology": "Based on DeepSeek AI technology, providing intelligent content understanding"
+    },
+    "aiReady": {
+      "title": "AI Features Ready",
+      "message": "You have successfully configured the API Key and can start using all AI features!"
+    },
+    "errors": {
+      "cannotGetContent": "Cannot get page content",
+      "cannotGetCurrentPage": "Cannot get current page",
+      "apiRequestFailed": "API request failed",
+      "configureApiKey": "Please configure DeepSeek API Key first",
+      "analysisFailedCheckKey": "Page analysis failed, please check if the API Key is correct"
+    },
+    "empty": {
+      "title": "Setup Required",
+      "subtitle": "Please configure your API Key in settings to enable AI analysis features",
+      "button": "Go to Settings"
+    },
+    "analysis": {
+      "title": "Content Summary",
+      "mainPoints": "Main Points",
+      "keyTopics": "Key Topics"
+    },
+    "structure": {
+       "title": "Page Structure"
+     }
+   },
+   "vocabulary": {
+    "unknownPage": "Unknown Page",
+    "translationProgress": "Translation Progress",
+    "hideOriginal": "Hide Original",
+    "showOriginal": "Show Original",
+    "original": "Original",
+    "translation": "Translation",
+    "readOriginal": "Read Original",
+    "readTranslation": "Read Translation",
+    "readText": "Read Text",
+    "readyToTranslate": "Ready to Translate",
+    "clickToTranslate": "Click the translate button above to start translating the current page content",
+    "smartLanguageDetection": "Smart Language Detection",
+    "speechSynthesis": "Speech Synthesis",
+    "errors": {
+      "timeout": "Page content retrieval timeout",
+      "noContent": "No translatable content found on the page",
+      "translationFailed": "Translation failed",
+      "pageTranslationFailed": "Page translation failed"
+    }
+  }
+}

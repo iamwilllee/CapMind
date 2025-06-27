@@ -1,5 +1,6 @@
 import { Brain, X, Pin, PinOff } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useTranslation } from '../../../src/i18n';
 
 interface HeaderProps {
   onClose: () => void;
@@ -7,6 +8,7 @@ interface HeaderProps {
 
 export const Header = ({ onClose }: HeaderProps) => {
   const [isPinned, setIsPinned] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // 监听钉住状态变化
@@ -39,7 +41,7 @@ export const Header = ({ onClose }: HeaderProps) => {
           className={`p-1 hover:bg-gray-100 rounded transition-colors ${
             isPinned ? 'text-blue-600' : 'text-gray-500'
           }`}
-          title={isPinned ? '取消钉住' : '钉住面板'}
+          title={isPinned ? t('header.unpin') : t('header.pin')}
         >
           {isPinned ? <Pin className="w-4 h-4" /> : <PinOff className="w-4 h-4" />}
         </button>

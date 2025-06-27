@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { TranslationResult, TranslationService } from '../../../../lib/translation-service';
+import { useTranslation } from '../../../../src/i18n';
 
-// TTS 服务
+// TTS Service
 class TTSService {
   private static synthesis = window.speechSynthesis;
   
   static speak(text: string, lang: string = 'en-US') {
-    // 停止当前播放
+    // Stop current playback
     this.synthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
@@ -28,6 +29,7 @@ class TTSService {
 }
 
 export const VocabularyTab = () => {
+  const { t } = useTranslation();
   const [translations, setTranslations] = useState<TranslationResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,28 +47,28 @@ export const VocabularyTab = () => {
   const [playingIndex, setPlayingIndex] = useState<string | null>(null);
 
   useEffect(() => {
-    // 通过消息获取当前页面信息
+    // Get current page information through messages
     window.parent.postMessage({ type: 'GET_CURRENT_URL' }, '*');
     window.parent.postMessage({ type: 'GET_PAGE_INFO' }, '*');
     
-    // 监听响应
+    // Listen for responses
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'CURRENT_URL_RESPONSE') {
         setCurrentUrl(event.data.url);
       } else if (event.data.type === 'PAGE_INFO_RESPONSE') {
         setPageTitle(event.data.title || '');
         setPageFavicon(event.data.favicon || '');
-        // 检测页面标题语言并设置默认目标语言
+        // Detect page title language and set default target language
         if (event.data.title) {
           const detected = TranslationService.detectLanguage(event.data.title);
           setDetectedLanguage(detected);
-          // 根据检测到的语言设置默认目标语言
+          // Set default target language based on detected language
           if (detected === 'zh') {
-            setTargetLanguage('en'); // 中文页面默认翻译为英文
+            setTargetLanguage('en'); // Chinese pages default to English translation
           } else if (detected === 'en') {
-            setTargetLanguage('zh'); // 英文页面默认翻译为中文
+            setTargetLanguage('zh'); // English pages default to Chinese translation
           } else {
-            setTargetLanguage('zh'); // 其他语言默认翻译为中文
+            setTargetLanguage('zh'); // Other languages default to Chinese translation
           }
         }
       }
@@ -74,7 +76,7 @@ export const VocabularyTab = () => {
     
     window.addEventListener('message', handleMessage);
     
-    // 清理函数
+    // Cleanup function
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
@@ -83,13 +85,13 @@ export const VocabularyTab = () => {
     setError(null);
     
     try {
-      // 通过消息请求页面内容
+      // Request page content through messages
       window.parent.postMessage({ type: 'GET_PAGE_CONTENT' }, '*');
       
-      // 等待页面内容响应
+      // Wait for page content response
       const pageTexts = await new Promise<string[]>((resolve, reject) => {
         const timeout = setTimeout(() => {
-          reject(new Error('获取页面内容超时'));
+          reject(new Error(t('vocabulary.errors.timeout')));
         }, 10000);
         
         const handleMessage = (event: MessageEvent) => {
@@ -104,16 +106,16 @@ export const VocabularyTab = () => {
       });
       
       if (pageTexts.length === 0) {
-        throw new Error('未找到可翻译的文本内容');
+        throw new Error(t('vocabulary.errors.noContent'));
       }
       
-      // 检测页面主要语言
+      // Detect main page language
       const pageLanguage = TranslationService.detectPageLanguage(pageTexts);
-      let actualTargetLanguage = targetLanguage; // 使用局部变量存储实际的目标语言
+      let actualTargetLanguage = targetLanguage; // Use local variable to store actual target language
       
       if (pageLanguage !== 'auto' && pageLanguage !== detectedLanguage) {
         setDetectedLanguage(pageLanguage);
-        // 根据检测到的页面语言重新设置目标语言
+        // Reset target language based on detected page language
         if (pageLanguage === 'zh') {
           actualTargetLanguage = 'en';
           setTargetLanguage('en');
@@ -121,43 +123,43 @@ export const VocabularyTab = () => {
           actualTargetLanguage = 'zh';
           setTargetLanguage('zh');
         } else {
-          actualTargetLanguage = 'zh'; // 其他语言默认翻译为中文
+          actualTargetLanguage = 'zh'; // Other languages default to Chinese translation
           setTargetLanguage('zh');
         }
       }
       
-      // 初始化翻译进度
+      // Initialize translation progress
       setTranslationProgress({
         total: pageTexts.length,
         completed: 0,
         isTranslating: true
       });
-      setTranslations([]); // 清空之前的翻译结果
+      setTranslations([]); // Clear previous translation results
       
-      // 翻译文本 - 实时显示
+      // Translate text - real-time display
       const translationResults: TranslationResult[] = [];
       
       for (let i = 0; i < pageTexts.length; i++) {
         const text = pageTexts[i];
         try {
           const result = await TranslationService.translateText(text, {
-            targetLanguage: actualTargetLanguage, // 使用局部变量而不是状态值
+            targetLanguage: actualTargetLanguage, // Use local variable instead of state value
             sourceLanguage: 'auto'
           });
           translationResults.push(result);
           
-          // 立即更新界面显示
+          // Update UI immediately
           setTranslations([...translationResults]);
           setTranslationProgress(prev => ({
             ...prev,
             completed: i + 1
           }));
           
-          // 添加延迟避免API限制
+          // Add delay to avoid API limits
           await new Promise(resolve => setTimeout(resolve, 200));
         } catch (error) {
-          console.error(`翻译失败: ${text}`, error);
-          // 即使翻译失败也要更新进度
+          console.error(`${t('vocabulary.errors.translationFailed')}: ${text}`, error);
+          // Update progress even if translation fails
           setTranslationProgress(prev => ({
             ...prev,
             completed: i + 1
@@ -165,16 +167,16 @@ export const VocabularyTab = () => {
         }
       }
       
-      // 翻译完成
+      // Translation completed
       setTranslationProgress(prev => ({
         ...prev,
         isTranslating: false
       }));
       
     } catch (error) {
-      console.error('翻译页面失败:', error);
-      setError(error instanceof Error ? error.message : '翻译失败');
-      // 重置翻译进度状态
+      console.error(t('vocabulary.errors.pageTranslationFailed'), error);
+      setError(error instanceof Error ? error.message : t('vocabulary.errors.translationFailed'));
+      // Reset translation progress state
       setTranslationProgress(prev => ({
         ...prev,
         isTranslating: false
@@ -188,19 +190,19 @@ export const VocabularyTab = () => {
     setIsBilingualMode(!isBilingualMode);
   };
 
-  // TTS 播放控制
+  // TTS playback control
   const handlePlayTTS = (text: string, index: string, language: string = 'en') => {
     if (playingIndex === index) {
-      // 如果正在播放同一个，则停止
+      // If playing the same one, stop it
       TTSService.stop();
       setPlayingIndex(null);
     } else {
-      // 先停止当前播放的语音
+      // First stop currently playing speech
       if (playingIndex) {
         TTSService.stop();
       }
       
-      // 播放新的
+      // Play new one
       setPlayingIndex(index);
       
       const utterance = new SpeechSynthesisUtterance(text);
@@ -225,7 +227,7 @@ export const VocabularyTab = () => {
     <div className="p-4 space-y-4">
 
       
-      {/* 网址区块 */}
+      {/* URL block */}
       <div className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-5 mb-6 shadow-sm">
         <div className="flex items-center space-x-3 mb-4">
           {pageFavicon && (
@@ -233,13 +235,13 @@ export const VocabularyTab = () => {
           )}
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-gray-900 truncate mb-1">
-              {pageTitle || '未知页面'}
+              {pageTitle || t('vocabulary.unknownPage')}
             </h3>
             <p className="text-xs text-gray-500 truncate bg-gray-100 px-2 py-1 rounded-md">{currentUrl}</p>
           </div>
         </div>
         
-        {/* 翻译进度条 */}
+        {/* Translation progress bar */}
         {translationProgress.isTranslating && (
           <div className="mb-4 bg-white rounded-lg p-3 border border-blue-100">
             <div className="flex justify-between text-xs text-gray-700 mb-2 font-medium">
@@ -247,7 +249,7 @@ export const VocabularyTab = () => {
                 <svg className="w-3 h-3 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
-                翻译进度
+                {t('vocabulary.translationProgress')}
               </span>
               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">
                 {translationProgress.completed}/{translationProgress.total}
@@ -266,7 +268,7 @@ export const VocabularyTab = () => {
         
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {/* 语言选择 */}
+            {/* Language selection */}
             <div className="flex items-center space-x-2 bg-white rounded-lg p-2 border border-gray-200">
               <span className="text-xs text-gray-600 font-medium px-2 py-1 bg-gray-100 rounded">
                 {detectedLanguage === 'zh' ? '🇨🇳 中文' : 
@@ -275,7 +277,7 @@ export const VocabularyTab = () => {
                  detectedLanguage === 'ko' ? '🇰🇷 한국어' : 
                  detectedLanguage === 'fr' ? '🇫🇷 Français' : 
                  detectedLanguage === 'de' ? '🇩🇪 Deutsch' : 
-                 detectedLanguage === 'es' ? '🇪🇸 Español' : '🔍 自动检测'}
+                 detectedLanguage === 'es' ? '🇪🇸 Español' : '🔍 ' + t('vocabulary.autoDetect')}
               </span>
               <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -297,7 +299,7 @@ export const VocabularyTab = () => {
           </div>
           
           <div className="flex items-center space-x-2">
-            {/* 显示隐藏按钮 */}
+            {/* Show/hide button */}
             <button
               onClick={toggleBilingualMode}
               className={`p-2 rounded-lg transition-all duration-200 ${
@@ -305,7 +307,7 @@ export const VocabularyTab = () => {
                   ? 'bg-blue-500 text-white shadow-md hover:bg-blue-600' 
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
               }`}
-              title={isBilingualMode ? '隐藏原文' : '显示原文'}
+              title={isBilingualMode ? t('vocabulary.hideOriginal') : t('vocabulary.showOriginal')}
             >
               {isBilingualMode ? (
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,7 +321,7 @@ export const VocabularyTab = () => {
               )}
             </button>
             
-            {/* 翻译按钮 */}
+            {/* Translation button */}
             <button
               onClick={handleTranslatePage}
               disabled={isLoading || translationProgress.isTranslating}
@@ -336,14 +338,14 @@ export const VocabularyTab = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span>翻译中</span>
+                    <span>{t('common.translating')}</span>
                   </>
                 ) : (
                   <>
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
-                    <span>翻译</span>
+                    <span>{t('common.translate')}</span>
                   </>
                 )}
               </div>
@@ -352,14 +354,14 @@ export const VocabularyTab = () => {
         </div>
       </div>
       
-      {/* 错误信息 */}
+      {/* Error message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
           <p className="text-red-600 text-sm">{error}</p>
         </div>
       )}
       
-      {/* 翻译结果 */}
+      {/* Translation results */}
       <div className="space-y-3">
         {translations.length === 0 && !translationProgress.isTranslating && (
           <div className="text-center py-12 px-6">
@@ -369,29 +371,29 @@ export const VocabularyTab = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">准备开始翻译</h3>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('vocabulary.readyToTranslate')}</h3>
               <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                点击上方的翻译按钮，开始翻译当前页面的内容
+                {t('vocabulary.clickToTranslate')}
               </p>
               <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
                 <div className="flex items-center space-x-1">
                   <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
-                  <span>智能语言检测</span>
+                  <span>{t('vocabulary.smartLanguageDetection')}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                   </svg>
-                  <span>语音朗读</span>
+                  <span>{t('vocabulary.speechSynthesis')}</span>
                 </div>
               </div>
             </div>
           </div>
         )}
         
-        {/* 显示已完成的翻译结果 */}
+        {/* Display completed translation results */}
         {translations.map((translation, index) => {
           const isOriginalEnglish = /^[a-zA-Z\s\.,!?;:"'()\-\d]+$/.test(translation.originalText.trim());
           const isTranslatedEnglish = /^[a-zA-Z\s\.,!?;:"'()\-\d]+$/.test(translation.translatedText.trim());
@@ -400,11 +402,11 @@ export const VocabularyTab = () => {
             <div key={index} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
               {isBilingualMode ? (
                 <div className="space-y-4">
-                  {/* 原文 */}
+                  {/* Original text */}
                   <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="text-xs text-blue-600 font-medium mb-1 uppercase tracking-wide">原文</div>
+                        <div className="text-xs text-blue-600 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.original')}</div>
                         <div className="text-sm text-gray-800 leading-relaxed">{translation.originalText}</div>
                       </div>
                       {isOriginalEnglish && TTSService.isSupported() && (
@@ -415,7 +417,7 @@ export const VocabularyTab = () => {
                               ? 'bg-blue-500 text-white shadow-lg' 
                               : 'bg-white text-blue-500 hover:bg-blue-100 border border-blue-200'
                           }`}
-                          title="朗读原文"
+                          title={t('vocabulary.readOriginal')}
                         >
                           {playingIndex === `orig-${index}` ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -431,11 +433,11 @@ export const VocabularyTab = () => {
                     </div>
                   </div>
                   
-                  {/* 译文 */}
+                  {/* Translation */}
                   <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="text-xs text-green-600 font-medium mb-1 uppercase tracking-wide">译文</div>
+                        <div className="text-xs text-green-600 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.translation')}</div>
                         <div className="text-sm text-gray-800 leading-relaxed">{translation.translatedText}</div>
                       </div>
                       {isTranslatedEnglish && TTSService.isSupported() && (
@@ -446,7 +448,7 @@ export const VocabularyTab = () => {
                               ? 'bg-green-500 text-white shadow-lg' 
                               : 'bg-white text-green-500 hover:bg-green-100 border border-green-200'
                           }`}
-                          title="朗读译文"
+                          title={t('vocabulary.readTranslation')}
                         >
                           {playingIndex === `trans-${index}` ? (
                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -476,7 +478,7 @@ export const VocabularyTab = () => {
                             ? 'bg-gray-500 text-white shadow-lg' 
                             : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
                         }`}
-                        title="朗读文本"
+                        title={t('vocabulary.readText')}
                       >
                         {playingIndex === `single-${index}` ? (
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -496,14 +498,14 @@ export const VocabularyTab = () => {
           );
         })}
         
-        {/* 翻译中的骨架屏 */}
+        {/* Skeleton screen during translation */}
         {translationProgress.isTranslating && (
           <>
             {Array.from({ length: Math.min(3, translationProgress.total - translationProgress.completed) }).map((_, index) => (
               <div key={`skeleton-${index}`} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm animate-pulse">
                 {isBilingualMode ? (
                   <div className="space-y-4">
-                    {/* 原文骨架 */}
+                    {/* Original text skeleton */}
                     <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-200">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -517,7 +519,7 @@ export const VocabularyTab = () => {
                       </div>
                     </div>
                     
-                    {/* 译文骨架 */}
+                    {/* Translation skeleton */}
                     <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-200">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
