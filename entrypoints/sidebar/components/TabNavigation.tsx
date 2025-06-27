@@ -1,4 +1,4 @@
-import { BookOpen, Camera, Brain, Settings } from 'lucide-react';
+import { BookOpen, Camera, Languages, Settings } from 'lucide-react';
 
 type TabType = 'overview' | 'capture' | 'vocabulary' | 'settings';
 
@@ -10,7 +10,7 @@ interface TabNavigationProps {
 const tabs = [
   { id: 'overview' as const, label: 'Overview', icon: BookOpen },
   { id: 'capture' as const, label: 'Capture', icon: Camera },
-  { id: 'vocabulary' as const, label: 'Vocabulary', icon: Brain },
+  { id: 'vocabulary' as const, label: 'Translate', icon: Languages },
   { id: 'settings' as const, icon: Settings }
 ];
 

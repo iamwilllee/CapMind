@@ -18,7 +18,7 @@ export const SettingsTab = () => {
     const loadSettings = async () => {
       try {
         const result = await chrome.storage.sync.get([
-          'deepseek_api_key',
+          'deepseekApiKey',
           'ocrSpaceApiKey',
           'ai_model',
           'auto_save_screenshots',
@@ -28,8 +28,8 @@ export const SettingsTab = () => {
           'first_time_setup'
         ]);
         
-        if (result.deepseek_api_key) {
-          setApiKey(result.deepseek_api_key);
+        if (result.deepseekApiKey) {
+          setApiKey(result.deepseekApiKey);
         }
         if (result.ocrSpaceApiKey) {
           setOcrApiKey(result.ocrSpaceApiKey);
@@ -53,7 +53,7 @@ export const SettingsTab = () => {
     setSaveStatus('saving');
     try {
       await chrome.storage.sync.set({
-        deepseek_api_key: apiKey,
+        deepseekApiKey: apiKey,
         ocrSpaceApiKey: ocrApiKey,
         ai_model: model,
         auto_save_screenshots: autoSaveScreenshots,
