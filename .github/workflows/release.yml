@@ -2,11 +2,11 @@ name: Build and Release
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-      - '.gitignore'
+      - "README.md"
+      - "docs/**"
+      - ".gitignore"
 
   # 允许手动触发
   workflow_dispatch:
@@ -14,93 +14,93 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: latest
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
 
-    - name: Install dependencies
-      run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-    - name: Build extension
-      run: |
-        pnpm build
-        pnpm zip
+      - name: Build extension
+        run: |
+          pnpm build
+          pnpm zip
 
-    - name: Get version from package.json
-      id: package-version
-      run: |
-        VERSION=$(node -p "require('./package.json').version")
-        echo "version=$VERSION" >> $GITHUB_OUTPUT
-        echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+      - name: Get version from package.json
+        id: package-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
 
-    - name: Check if tag exists
-      id: check-tag
-      run: |
-        if git rev-parse "refs/tags/v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
-          echo "exists=true" >> $GITHUB_OUTPUT
-        else
-          echo "exists=false" >> $GITHUB_OUTPUT
-        fi
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          if git rev-parse "refs/tags/v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
-    - name: Create Release
-      if: steps.check-tag.outputs.exists == 'false'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.package-version.outputs.tag }}
-        name: CapMind v${{ steps.package-version.outputs.version }}
-        body: |
-          ## CapMind v${{ steps.package-version.outputs.version }}
-          
-          ### 🚀 新功能
-          - 基于 AI 的智能网页浏览助手
-          - 智能概览：页面内容分析和摘要
-          - 智能截图：OCR 识别和 AI 分析
-          - 实时翻译：多语言翻译支持
-          - AI 助手：智能问答和对话
-          
-          ### 📦 安装说明
-          1. 下载对应浏览器的扩展包
-          2. 解压缩文件
-          3. 在浏览器扩展管理页面启用开发者模式
-          4. 点击"加载已解压的扩展程序"并选择解压后的文件夹
-          
-          ### 🔧 技术栈
-          - React + TypeScript
-          - WXT 框架
-          - Tailwind CSS
-          - AI SDK (支持 DeepSeek、Google Gemini 等)
-        draft: false
-        prerelease: false
-        files: |
-          .output/chrome-mv3.zip
-          .output/firefox-mv2.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.package-version.outputs.tag }}
+          name: CapMind v${{ steps.package-version.outputs.version }}
+          body: |
+            ## CapMind v${{ steps.package-version.outputs.version }}
 
-    - name: Upload Chrome Extension
-      if: steps.check-tag.outputs.exists == 'false'
-      uses: actions/upload-artifact@v4
-      with:
-        name: capmind-chrome-v${{ steps.package-version.outputs.version }}
-        path: .output/chrome-mv3.zip
+            ### 🚀 新功能
+            - 基于 AI 的智能网页浏览助手
+            - 智能概览：页面内容分析和摘要
+            - 智能截图：OCR 识别和 AI 分析
+            - 实时翻译：多语言翻译支持
+            - AI 助手：智能问答和对话
 
-    - name: Upload Firefox Extension
-      if: steps.check-tag.outputs.exists == 'false'
-      uses: actions/upload-artifact@v4
-      with:
-        name: capmind-firefox-v${{ steps.package-version.outputs.version }}
-        path: .output/firefox-mv2.zip
+            ### 📦 安装说明
+            1. 下载对应浏览器的扩展包
+            2. 解压缩文件
+            3. 在浏览器扩展管理页面启用开发者模式
+            4. 点击"加载已解压的扩展程序"并选择解压后的文件夹
+
+            ### 🔧 技术栈
+            - React + TypeScript
+            - WXT 框架
+            - Tailwind CSS
+            - AI SDK (支持 DeepSeek、Google Gemini 等)
+          draft: false
+          prerelease: false
+          files: |
+            .output/chrome-mv3.zip
+            .output/firefox-mv2.zip
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Chrome Extension
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: capmind-chrome-v${{ steps.package-version.outputs.version }}
+          path: .output/chrome-mv3.zip
+
+      - name: Upload Firefox Extension
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: capmind-firefox-v${{ steps.package-version.outputs.version }}
+          path: .output/firefox-mv2.zip
