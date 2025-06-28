@@ -86,8 +86,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-          .output/chrome-mv3.zip
-          .output/firefox-mv2.zip
+            .output/chrome-mv3.zip
+            .output/firefox-mv2.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
