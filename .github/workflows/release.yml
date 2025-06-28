@@ -86,10 +86,10 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            .output/chrome-mv3.zip
-            .output/firefox-mv2.zip
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          .output/chrome-mv3.zip
+          .output/firefox-mv2.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Chrome Extension
         if: steps.check-tag.outputs.exists == 'false'
