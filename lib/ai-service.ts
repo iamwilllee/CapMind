@@ -399,8 +399,8 @@ export async function analyzeImageWithOCRSpaceDetailed(imageDataUrl: string): Pr
  */
 async function getDeepSeekAPIKey(): Promise<string> {
   try {
-    const result = await chrome.storage.sync.get(['deepseek_api_key']);
-    return result.deepseek_api_key || '';
+    const result = await chrome.storage.sync.get(['deepseekApiKey']);
+    return result.deepseekApiKey || '';
   } catch (error) {
     console.error('获取DeepSeek API密钥失败:', error);
     return '';

@@ -49,16 +49,16 @@ export const OverviewTab = () => {
         setCurrentUrl(currentPageUrl);
         
         const result = await chrome.storage.sync.get([
-          "deepseek_api_key",
+          "deepseekApiKey",
           "ai_model",
           "first_time_setup",
           "cached_analysis",
           "has_analyzed",
           "cached_url"
         ]);
-        const hasKey = !!result.deepseek_api_key;
+        const hasKey = !!result.deepseekApiKey;
         setHasApiKey(hasKey);
-        setApiKey(result.deepseek_api_key || "");
+        setApiKey(result.deepseekApiKey || "");
         setModel(result.ai_model || "deepseek-chat");
         setIsFirstTime(!result.first_time_setup);
         

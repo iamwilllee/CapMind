@@ -85,9 +85,9 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     // 加载保存的 API Key
     const loadApiKey = async () => {
       try {
-        const result = await chrome.storage.sync.get(['deepseek_api_key', 'ai_model']);
-        if (result.deepseek_api_key) {
-          setApiKey(result.deepseek_api_key);
+        const result = await chrome.storage.sync.get(['deepseekApiKey', 'ai_model']);
+    if (result.deepseekApiKey) {
+      setApiKey(result.deepseekApiKey);
         }
         if (result.ai_model) {
           setModel(result.ai_model);
