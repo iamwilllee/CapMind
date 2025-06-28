@@ -2,11 +2,11 @@ name: Build and Release
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
     paths-ignore:
-      - "README.md"
-      - "docs/**"
-      - ".gitignore"
+      - 'README.md'
+      - 'docs/**'
+      - '.gitignore'
 
   # 允许手动触发
   workflow_dispatch:
@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
-          cache: "npm"
+          node-version: '18'
+          cache: 'pnpm'
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -39,6 +39,7 @@ jobs:
         run: |
           pnpm build
           pnpm zip
+          pnpm zip:firefox
 
       - name: Get version from package.json
         id: package-version
@@ -88,8 +89,8 @@ jobs:
           files: |
             .output/chrome-mv3.zip
             .output/firefox-mv2.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Chrome Extension
         if: steps.check-tag.outputs.exists == 'false'
