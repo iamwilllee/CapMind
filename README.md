@@ -80,30 +80,65 @@ pnpm zip
 
 ```
 capmind/
-├── entrypoints/          # 插件入口点
-│   ├── sidebar/         # 侧边栏页面
-│   │   ├── components/  # React 组件
-│   │   │   └── tabs/   # 功能标签页
-│   │   └── App.tsx     # 主应用组件
+├── entrypoints/          # WXT 入口点
+│   ├── background/       # 后台脚本
 │   ├── content/         # 内容脚本
-│   └── background/      # 后台脚本
-├── components/          # 通用 UI 组件
-│   └── ui/             # Shadcn/ui 组件
-├── lib/                # 工具库和服务
-├── i18n/               # 国际化文件
+│   └── sidebar/         # 侧边栏页面
+├── components/          # React 组件
+│   └── ui/             # UI 组件库
 ├── contexts/           # React 上下文
-├── assets/             # 静态资源
-└── public/             # 公共文件
+├── i18n/              # 国际化
+│   └── locales/       # 语言文件
+├── lib/               # 工具库
+├── assets/            # 静态资源
+├── scripts/           # 构建脚本
+└── public/            # 公共资源
 ```
 
 ### API 配置
 
-支持以下 AI 服务商，任选其一即可：
+支持以下 AI 服务商：
 
-- **DeepSeek API** (推荐): 高性价比，支持 V3 和 R1 模型
-- **Google Gemini API**: 强大的多模态能力
-- **智谱AI API**: 国产优秀 AI 服务
-- **OCR Space API** (可选): 增强 OCR 识别能力
+- **DeepSeek**：`https://api.deepseek.com`
+- **Google Gemini**：`https://generativelanguage.googleapis.com`
+- **智谱 AI**：`https://open.bigmodel.cn`
+- **OCR Space**：`https://api.ocr.space`
+
+在设置页面配置相应的 API 密钥即可使用。
+
+### 版本管理和发布
+
+项目采用自动化发布流程，详见 [发布指南](RELEASE.md)。
+
+#### 快速发布
+
+```bash
+# 更新版本号（补丁版本）
+npm run version:patch
+
+# 推送到 main 分支触发自动发布
+git push origin main
+```
+
+#### 版本类型
+
+- `npm run version:patch` - 修复版本 (1.0.0 → 1.0.1)
+- `npm run version:minor` - 功能版本 (1.0.0 → 1.1.0)
+- `npm run version:major` - 重大版本 (1.0.0 → 2.0.0)
+
+#### 构建命令
+
+```bash
+# 开发模式
+npm run dev              # Chrome 开发
+npm run dev:firefox      # Firefox 开发
+
+# 生产构建
+npm run build            # 构建扩展
+npm run zip              # 打包 Chrome 版本
+npm run zip:firefox      # 打包 Firefox 版本
+npm run release          # 构建并打包所有版本
+```
 
 ## 📄 许可证
 
