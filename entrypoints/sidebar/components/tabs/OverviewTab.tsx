@@ -9,7 +9,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useTranslation } from "../../../../src/i18n";
+import { useTranslation } from "../../../../i18n";
 
 interface ContentSummary {
   title: string;

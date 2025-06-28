@@ -1,7 +1,7 @@
 import React from 'react';
 import { Brain } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
-import { useTranslation } from '../../../src/i18n';
+import { useTranslation } from '../../../i18n';
 
 interface BottomActionBarProps {
   onAskAI: () => void;

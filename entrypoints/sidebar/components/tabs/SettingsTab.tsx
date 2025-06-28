@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../../components/ui/button";
+import { Select, Option } from "../../../../components/ui/select";
 import {
   Settings,
   Key,
@@ -11,15 +12,17 @@ import {
   Globe,
   Palette,
 } from "lucide-react";
-import { useTranslation } from "../../../../src/i18n";
-import { useTheme } from "../../../../src/contexts/ThemeContext";
+import { useTranslation } from "../../../../i18n";
+import { useTheme } from "../../../../contexts/ThemeContext";
 
 export const SettingsTab = () => {
   const [apiKey, setApiKey] = useState("");
   const [zhipuApiKey, setZhipuApiKey] = useState("");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
   const [ocrApiKey, setOcrApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
   const [zhipuModel, setZhipuModel] = useState("glm-4");
+  const [geminiModel, setGeminiModel] = useState("gemini-pro");
   const [defaultProvider, setDefaultProvider] = useState("deepseek");
   const [autoSaveScreenshots, setAutoSaveScreenshots] = useState(true);
   const [enableAIAnalysis, setEnableAIAnalysis] = useState(true);
@@ -34,6 +37,10 @@ export const SettingsTab = () => {
     "idle" | "testing" | "success" | "error"
   >("idle");
   const [apiTestMessage, setApiTestMessage] = useState<string>("");
+  const [zhipuTestStatus, setZhipuTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [zhipuTestMessage, setZhipuTestMessage] = useState("");
+  const [geminiTestStatus, setGeminiTestStatus] = useState<"idle" | "testing" | "success" | "error">("idle");
+  const [geminiTestMessage, setGeminiTestMessage] = useState("");
   const [, setIsFirstTime] = useState(false);
   const { t, language, switchLanguage } = useTranslation();
   const { theme, setTheme } = useTheme();
@@ -45,9 +52,11 @@ export const SettingsTab = () => {
         const result = await chrome.storage.sync.get([
           "deepseekApiKey",
           "zhipuApiKey",
+          "geminiApiKey",
           "ocrSpaceApiKey",
           "ai_model",
           "zhipu_model",
+          "gemini_model",
           "default_provider",
           "auto_save_screenshots",
           "enable_ai_analysis",
@@ -64,6 +73,9 @@ export const SettingsTab = () => {
         if (result.zhipuApiKey) {
           setZhipuApiKey(result.zhipuApiKey);
         }
+        if (result.geminiApiKey) {
+          setGeminiApiKey(result.geminiApiKey);
+        }
         if (result.ocrSpaceApiKey) {
           setOcrApiKey(result.ocrSpaceApiKey);
         }
@@ -72,6 +84,9 @@ export const SettingsTab = () => {
         }
         if (result.zhipu_model) {
           setZhipuModel(result.zhipu_model);
+        }
+        if (result.gemini_model) {
+          setGeminiModel(result.gemini_model);
         }
         setDefaultProvider(result.default_provider ?? "deepseek");
         setAutoSaveScreenshots(result.auto_save_screenshots ?? true);
@@ -94,9 +109,11 @@ export const SettingsTab = () => {
       await chrome.storage.sync.set({
         deepseekApiKey: apiKey,
         zhipuApiKey: zhipuApiKey,
+        geminiApiKey: geminiApiKey,
         ocrSpaceApiKey: ocrApiKey,
         ai_model: model,
         zhipu_model: zhipuModel,
+        gemini_model: geminiModel,
         default_provider: defaultProvider,
         first_time_setup: true,
       });
@@ -203,6 +220,93 @@ export const SettingsTab = () => {
     }, 3000);
   };
 
+  const testZhipuApiKey = async () => {
+    if (!zhipuApiKey) {
+      setZhipuTestStatus("error");
+      setZhipuTestMessage("请先输入智谱AI API Key");
+      setTimeout(() => {
+        setZhipuTestStatus("idle");
+        setZhipuTestMessage("");
+      }, 3000);
+      return;
+    }
+
+    setZhipuTestStatus("testing");
+    setZhipuTestMessage("正在验证 API Key...");
+
+    try {
+      const response = await fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${zhipuApiKey}`,
+        },
+        body: JSON.stringify({
+          model: "glm-4",
+          messages: [
+            {
+              role: "user",
+              content: "测试"
+            }
+          ],
+          max_tokens: 1
+        })
+      });
+
+      if (response.ok) {
+        setZhipuTestStatus("success");
+        setZhipuTestMessage("智谱AI API Key 验证成功！");
+      } else {
+        const errorData = await response.json();
+        setZhipuTestStatus("error");
+        setZhipuTestMessage(`API Key 验证失败: ${errorData.error?.message || '请检查密钥是否正确'}`);
+      }
+    } catch (error) {
+      setZhipuTestStatus("error");
+      setZhipuTestMessage("API Key 验证失败，请检查网络连接和密钥是否正确");
+    }
+
+    setTimeout(() => {
+      setZhipuTestStatus("idle");
+      setZhipuTestMessage("");
+    }, 3000);
+  };
+
+  const testGeminiApiKey = async () => {
+    if (!geminiApiKey) {
+      setGeminiTestStatus("error");
+      setGeminiTestMessage("请先输入 Gemini API Key");
+      setTimeout(() => {
+        setGeminiTestStatus("idle");
+        setGeminiTestMessage("");
+      }, 3000);
+      return;
+    }
+
+    setGeminiTestStatus("testing");
+    setGeminiTestMessage("正在验证 API Key...");
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
+
+      if (response.ok) {
+        setGeminiTestStatus("success");
+        setGeminiTestMessage("Gemini API Key 验证成功！");
+      } else {
+        setGeminiTestStatus("error");
+        setGeminiTestMessage("API Key 验证失败，请检查密钥是否正确");
+      }
+    } catch (error) {
+      setGeminiTestStatus("error");
+      setGeminiTestMessage("API Key 验证失败，请检查密钥是否正确");
+    }
+
+    setTimeout(() => {
+      setGeminiTestStatus("idle");
+      setGeminiTestMessage("");
+    }, 3000);
+  };
+
   return (
     <div className="p-6 space-y-6 bg-white dark:bg-zinc-950">
       {/* Welcome Message */}
@@ -248,9 +352,8 @@ export const SettingsTab = () => {
               <Button
                 onClick={testApiKey}
                 variant="outline"
-                size="sm"
                 disabled={!apiKey || apiTestStatus === "testing"}
-                className="px-4 py-3 min-w-[80px] bg-white dark:bg-zinc-800/50 border-gray-300 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:border-gray-400 dark:hover:border-zinc-600/50"
+                className="h-12 px-4 py-3 min-w-[80px] bg-white dark:bg-zinc-800/50 border-gray-300 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:border-gray-400 dark:hover:border-zinc-600/50"
               >
                 {apiTestStatus === "testing" ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -306,18 +409,140 @@ export const SettingsTab = () => {
             </p>
           </div>
           
+          {/* Gemini AI设置 */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
+              Google Gemini API Key
+            </label>
+            <div className="flex space-x-3">
+              <input
+                type="password"
+                value={geminiApiKey}
+                onChange={(e) => setGeminiApiKey(e.target.value)}
+                placeholder="输入您的 Gemini API Key (可选)"
+                className="flex-1 px-4 py-3 text-sm bg-white dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 placeholder-gray-500 dark:placeholder-zinc-500"
+              />
+              <Button
+                onClick={testGeminiApiKey}
+                variant="outline"
+                disabled={!geminiApiKey || geminiTestStatus === "testing"}
+                className="h-12 px-4 py-3 min-w-[80px] bg-white dark:bg-zinc-800/50 border-gray-300 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:border-gray-400 dark:hover:border-zinc-600/50"
+              >
+                {geminiTestStatus === "testing" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  t("common.test")
+                )}
+              </Button>
+            </div>
+
+            {/* Gemini API test status display */}
+            {geminiTestStatus !== "idle" && geminiTestMessage && (
+              <div
+                className={`mt-4 p-4 rounded-lg flex items-center space-x-3 backdrop-blur-sm ${
+                  geminiTestStatus === "success"
+                    ? "bg-green-500/10 border border-green-500/20"
+                    : geminiTestStatus === "error"
+                    ? "bg-red-500/10 border border-red-500/20"
+                    : "bg-blue-500/10 border border-blue-500/20"
+                }`}
+              >
+                {geminiTestStatus === "success" && (
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                )}
+                {geminiTestStatus === "error" && (
+                  <XCircle className="w-5 h-5 text-red-400" />
+                )}
+                {geminiTestStatus === "testing" && (
+                  <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                )}
+                <span
+                  className={`text-sm font-medium ${
+                    geminiTestStatus === "success"
+                      ? "text-green-300"
+                      : geminiTestStatus === "error"
+                      ? "text-red-300"
+                      : "text-blue-300"
+                  }`}
+                >
+                  {geminiTestMessage}
+                </span>
+              </div>
+            )}
+
+            <p className="text-xs text-gray-600 dark:text-zinc-400 mt-3">
+              获取API Key：
+              <a
+                href="https://makersuite.google.com/app/apikey"
+                target="_blank"
+                className="text-blue-400 hover:text-blue-300 hover:underline font-medium transition-colors"
+              >
+                Google AI Studio
+              </a>
+            </p>
+          </div>
+          
           {/* 智谱AI设置 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
               智谱AI API Key
             </label>
-            <input
-              type="password"
-              value={zhipuApiKey}
-              onChange={(e) => setZhipuApiKey(e.target.value)}
-              placeholder="请输入您的智谱AI API Key (可选)"
-              className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 placeholder-gray-500 dark:placeholder-zinc-500"
-            />
+            <div className="flex space-x-3">
+              <input
+                type="password"
+                value={zhipuApiKey}
+                onChange={(e) => setZhipuApiKey(e.target.value)}
+                placeholder="请输入您的智谱AI API Key (可选)"
+                className="flex-1 px-4 py-3 text-sm bg-white dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 placeholder-gray-500 dark:placeholder-zinc-500"
+              />
+              <Button
+                onClick={testZhipuApiKey}
+                variant="outline"
+                disabled={!zhipuApiKey || zhipuTestStatus === "testing"}
+                className="h-12 px-4 py-3 min-w-[80px] bg-white dark:bg-zinc-800/50 border-gray-300 dark:border-zinc-700/50 text-gray-900 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-700/50 hover:border-gray-400 dark:hover:border-zinc-600/50"
+              >
+                {zhipuTestStatus === "testing" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  t("common.test")
+                )}
+              </Button>
+            </div>
+
+            {/* 智谱AI API test status display */}
+            {zhipuTestStatus !== "idle" && zhipuTestMessage && (
+              <div
+                className={`mt-4 p-4 rounded-lg flex items-center space-x-3 backdrop-blur-sm ${
+                  zhipuTestStatus === "success"
+                    ? "bg-green-500/10 border border-green-500/20"
+                    : zhipuTestStatus === "error"
+                    ? "bg-red-500/10 border border-red-500/20"
+                    : "bg-blue-500/10 border border-blue-500/20"
+                }`}
+              >
+                {zhipuTestStatus === "success" && (
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                )}
+                {zhipuTestStatus === "error" && (
+                  <XCircle className="w-5 h-5 text-red-400" />
+                )}
+                {zhipuTestStatus === "testing" && (
+                  <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                )}
+                <span
+                  className={`text-sm font-medium ${
+                    zhipuTestStatus === "success"
+                      ? "text-green-300"
+                      : zhipuTestStatus === "error"
+                      ? "text-red-300"
+                      : "text-blue-300"
+                  }`}
+                >
+                  {zhipuTestMessage}
+                </span>
+              </div>
+            )}
+
             <p className="text-xs text-gray-600 dark:text-zinc-400 mt-3">
               获取API Key: 访问{" "}
               <a
@@ -335,18 +560,20 @@ export const SettingsTab = () => {
             <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
               默认AI提供商
             </label>
-            <select
+            <Select
               value={defaultProvider}
               onChange={(e) => setDefaultProvider(e.target.value)}
-              className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
             >
-              <option value="deepseek" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              <Option value="deepseek">
                 🚀 DeepSeek
-              </option>
-              <option value="zhipu" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="zhipu">
                 🧠 智谱AI
-              </option>
-            </select>
+              </Option>
+              <Option value="gemini">
+                🌟 Google Gemini
+              </Option>
+            </Select>
           </div>
           
           {/* DeepSeek模型选择 */}
@@ -355,24 +582,17 @@ export const SettingsTab = () => {
               <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
                 {t("settings.ai.model")} (DeepSeek)
               </label>
-              <select
+              <Select
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
               >
-                <option
-                  value="deepseek-chat"
-                  className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
-                >
-                  {t("settings.ai.models.chat")}
-                </option>
-                <option
-                  value="deepseek-coder"
-                  className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
-                >
-                  {t("settings.ai.models.coder")}
-                </option>
-              </select>
+                <Option value="deepseek-chat">
+                  DeepSeek-V3 (通用对话)
+                </Option>
+                <Option value="deepseek-reasoner">
+                  DeepSeek-R1 (推理模型)
+                </Option>
+              </Select>
             </div>
           )}
           
@@ -382,21 +602,46 @@ export const SettingsTab = () => {
               <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
                 模型选择 (智谱AI)
               </label>
-              <select
+              <Select
                 value={zhipuModel}
                 onChange={(e) => setZhipuModel(e.target.value)}
-                className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
               >
-                <option value="glm-4" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                <Option value="glm-4">
                   GLM-4 (通用对话)
-                </option>
-                <option value="glm-4v" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                </Option>
+                <Option value="glm-4v">
                   GLM-4V (多模态)
-                </option>
-                <option value="glm-3-turbo" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                </Option>
+                <Option value="glm-3-turbo">
                   GLM-3-Turbo (快速响应)
-                </option>
-              </select>
+                </Option>
+              </Select>
+            </div>
+          )}
+          
+          {/* Gemini模型选择 */}
+          {defaultProvider === "gemini" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
+                模型选择 (Gemini)
+              </label>
+              <Select
+                value={geminiModel}
+                onChange={(e) => setGeminiModel(e.target.value)}
+              >
+                <Option value="gemini-pro">
+                  Gemini Pro (文本对话)
+                </Option>
+                <Option value="gemini-pro-vision">
+                  Gemini Pro Vision (多模态)
+                </Option>
+                <Option value="gemini-1.5-pro">
+                  Gemini 1.5 Pro (最新版本)
+                </Option>
+                <Option value="gemini-1.5-flash">
+                  Gemini 1.5 Flash (快速响应)
+                </Option>
+              </Select>
             </div>
           )}
           <div>
@@ -562,21 +807,21 @@ export const SettingsTab = () => {
             <label className="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-2">
               {t('settings.theme.select')}
             </label>
-            <select
+            <Select
               value={theme}
               onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg text-gray-900 dark:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200 backdrop-blur-sm cursor-pointer"
+              className="focus:ring-purple-500/50 focus:border-purple-500/50"
             >
-              <option value="system" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              <Option value="system">
                 🖥️ {t('settings.theme.system')}
-              </option>
-              <option value="light" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="light">
                 ☀️ {t('settings.theme.light')}
-              </option>
-              <option value="dark" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="dark">
                 🌙 {t('settings.theme.dark')}
-              </option>
-            </select>
+              </Option>
+            </Select>
           </div>
         </div>
       </div>
@@ -593,84 +838,81 @@ export const SettingsTab = () => {
             <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3 block">
               {t("settings.language.interface")}
             </label>
-            <select
+            <Select
               value={language}
               onChange={(e) => switchLanguage(e.target.value as "en" | "zh")}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 text-sm cursor-pointer"
             >
-              <option value="en" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              <Option value="en">
                 🇺🇸 English
-              </option>
-              <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="zh">
                 🇨🇳 中文
-              </option>
-            </select>
+              </Option>
+            </Select>
           </div>
           
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3 block">
               主语言 (Primary Language)
             </label>
-            <select
+            <Select
               value={primaryLanguage}
               onChange={(e) => handlePrimaryLanguageChange(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 text-sm cursor-pointer"
             >
-              <option value="en" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              <Option value="en">
                 🇺🇸 English
-              </option>
-              <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="zh">
                 🇨🇳 中文
-              </option>
-              <option value="ja" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="ja">
                 🇯🇵 日本語
-              </option>
-              <option value="ko" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="ko">
                 🇰🇷 한국어
-              </option>
-              <option value="fr" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="fr">
                 🇫🇷 Français
-              </option>
-              <option value="de" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="de">
                 🇩🇪 Deutsch
-              </option>
-              <option value="es" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="es">
                 🇪🇸 Español
-              </option>
-            </select>
+              </Option>
+            </Select>
           </div>
           
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3 block">
               第二语言 (Secondary Language)
             </label>
-            <select
+            <Select
               value={secondaryLanguage}
               onChange={(e) => handleSecondaryLanguageChange(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 text-sm cursor-pointer"
             >
-              <option value="en" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              <Option value="en">
                 🇺🇸 English
-              </option>
-              <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="zh">
                 🇨🇳 中文
-              </option>
-              <option value="ja" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="ja">
                 🇯🇵 日本語
-              </option>
-              <option value="ko" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="ko">
                 🇰🇷 한국어
-              </option>
-              <option value="fr" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="fr">
                 🇫🇷 Français
-              </option>
-              <option value="de" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="de">
                 🇩🇪 Deutsch
-              </option>
-              <option value="es" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+              </Option>
+              <Option value="es">
                 🇪🇸 Español
-              </option>
-            </select>
+              </Option>
+            </Select>
           </div>
         </div>
       </div>

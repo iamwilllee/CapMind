@@ -1,5 +1,5 @@
 import { BookOpen, Camera, Languages, Settings } from 'lucide-react';
-import { useTranslation } from '../../../src/i18n';
+import { useTranslation } from '../../../i18n';
 
 type TabType = 'overview' | 'capture' | 'vocabulary' | 'settings';
 

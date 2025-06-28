@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TranslationResult, TranslationService } from '../../../../lib/translation-service';
-import { useTranslation } from '../../../../src/i18n';
+import { useTranslation } from '../../../../i18n';
 
 // TTS Service
 class TTSService {

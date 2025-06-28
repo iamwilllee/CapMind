@@ -3,7 +3,7 @@ import { Camera, Scissors, Zap, FileText, Brain, Loader2, Download } from 'lucid
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ocrAndSummarize } from '../../../../lib/ai-service';
-import { useTranslation } from '../../../../src/i18n';
+import { useTranslation } from '../../../../i18n';
 
 interface CaptureTabProps {
   captureData: string | null;

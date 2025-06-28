@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, Send, Sparkles, Brain } from "lucide-react";
-import { useTranslation } from "../../../src/i18n";
+import { useTranslation } from "../../../i18n";
 import { Button } from "../../../components/ui/button";
+import { Select, Option } from "../../../components/ui/select";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -140,8 +141,11 @@ const Typewriter: React.FC<TypewriterProps> = ({
 export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [apiKey, setApiKey] = useState("");
   const [zhipuApiKey, setZhipuApiKey] = useState("");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [ocrApiKey, setOcrApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
   const [zhipuModel, setZhipuModel] = useState("glm-4");
+  const [geminiModel, setGeminiModel] = useState("gemini-pro");
   const [defaultProvider, setDefaultProvider] = useState("deepseek");
   const [currentProvider, setCurrentProvider] = useState("deepseek");
   const [currentModel, setCurrentModel] = useState("deepseek-chat");
@@ -162,8 +166,10 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         const result = await chrome.storage.sync.get([
           "deepseekApiKey",
           "zhipuApiKey",
+          "geminiApiKey",
           "ai_model",
           "zhipu_model",
+          "gemini_model",
           "default_provider",
         ]);
         if (result.deepseekApiKey) {
@@ -172,11 +178,17 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         if (result.zhipuApiKey) {
           setZhipuApiKey(result.zhipuApiKey);
         }
+        if (result.geminiApiKey) {
+          setGeminiApiKey(result.geminiApiKey);
+        }
         if (result.ai_model) {
           setModel(result.ai_model);
         }
         if (result.zhipu_model) {
           setZhipuModel(result.zhipu_model);
+        }
+        if (result.gemini_model) {
+          setGeminiModel(result.gemini_model);
         }
         const provider = result.default_provider || "deepseek";
         setDefaultProvider(provider);
@@ -185,8 +197,10 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         // 设置当前模型
         if (provider === "deepseek") {
           setCurrentModel(result.ai_model || "deepseek-chat");
-        } else {
+        } else if (provider === "zhipu") {
           setCurrentModel(result.zhipu_model || "glm-4");
+        } else {
+          setCurrentModel(result.gemini_model || "gemini-pro");
         }
       } catch (error) {
         console.error("加载设置失败:", error);
@@ -238,11 +252,13 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const sendMessage = async (content: string) => {
     // 获取当前使用的API Key
-    const currentApiKey = currentProvider === "deepseek" ? apiKey : zhipuApiKey;
+    const currentApiKey = currentProvider === "deepseek" ? apiKey : 
+                         currentProvider === "zhipu" ? zhipuApiKey : geminiApiKey;
     
     // 检查API Key
     if (!currentApiKey) {
-      const providerName = currentProvider === "deepseek" ? "DeepSeek" : "智谱AI";
+      const providerName = currentProvider === "deepseek" ? "DeepSeek" : 
+                          currentProvider === "zhipu" ? "智谱AI" : "Google Gemini";
       setMessages((prev) => [
         ...prev,
         {
@@ -292,43 +308,60 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       });
 
       // 根据当前提供商选择API端点和请求格式
-      let response;
+      let apiUrl: string;
+      let requestBody: any;
+      let headers: any;
+
       if (currentProvider === "deepseek") {
-        response = await fetch(
-          "https://api.deepseek.com/v1/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${currentApiKey}`,
-            },
-            body: JSON.stringify({
-              model: currentModel,
-              messages: apiMessages,
-              temperature: 0.7,
-              max_tokens: 2000,
-            }),
-          }
-        );
+        apiUrl = "https://api.deepseek.com/v1/chat/completions";
+        headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentApiKey}`,
+        };
+        requestBody = {
+          model: currentModel,
+          messages: apiMessages,
+          temperature: 0.7,
+          max_tokens: 2000,
+        };
+      } else if (currentProvider === "zhipu") {
+        // 智谱AI
+        apiUrl = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
+        headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentApiKey}`,
+        };
+        requestBody = {
+          model: currentModel,
+          messages: apiMessages,
+          temperature: 0.7,
+          max_tokens: 2000,
+        };
       } else {
-        // 智谱AI API调用
-        response = await fetch(
-          "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${currentApiKey}`,
-            },
-            body: JSON.stringify({
-              model: currentModel,
-              messages: apiMessages,
-              temperature: 0.7,
-              max_tokens: 2000,
-            }),
-          }
-        );
+        // Google Gemini
+        apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`;
+        headers = {
+          "Content-Type": "application/json",
+        };
+        requestBody = {
+          contents: apiMessages.map(msg => ({
+            parts: [{ text: msg.content }],
+            role: msg.role === "assistant" ? "model" : "user"
+          })),
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2000,
+          },
+        };
       }
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(requestBody),
+      });
 
       if (!response.ok) {
         throw new Error(
@@ -337,11 +370,18 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
+      let assistantContent: string;
+      
+      if (currentProvider === "gemini") {
+        assistantContent = data.candidates?.[0]?.content?.parts?.[0]?.text || t("chat.errors.noResponse");
+      } else {
+        assistantContent = data.choices?.[0]?.message?.content || t("chat.errors.noResponse");
+      }
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content:
-          data.choices[0]?.message?.content || t("chat.errors.noResponse"),
+        content: assistantContent,
         timestamp: new Date(),
       };
 
@@ -477,44 +517,63 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">AI提供商:</span>
-              <select
+              <Select
                 value={currentProvider}
                 onChange={(e) => {
                   const provider = e.target.value;
                   setCurrentProvider(provider);
                   if (provider === "deepseek") {
                     setCurrentModel(model);
-                  } else {
+                  } else if (provider === "zhipu") {
                     setCurrentModel(zhipuModel);
+                  } else {
+                    setCurrentModel(geminiModel);
                   }
                 }}
-                className="text-xs px-2 py-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded focus:ring-blue-500/50 focus:ring-1 text-gray-900 dark:text-zinc-200"
+                variant="compact"
               >
-                <option value="deepseek">🚀 DeepSeek</option>
-                <option value="zhipu">🧠 智谱AI</option>
-              </select>
+                <Option value="deepseek">🚀 DeepSeek</Option>
+                <Option value="zhipu">🤖 智谱AI</Option>
+                <Option value="gemini">🌟 Google Gemini</Option>
+              </Select>
             </div>
             
             <div className="flex items-center space-x-2">
               <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">模型:</span>
-              <select
+              <Select
                 value={currentModel}
-                onChange={(e) => setCurrentModel(e.target.value)}
-                className="text-xs px-2 py-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded focus:ring-blue-500/50 focus:ring-1 text-gray-900 dark:text-zinc-200"
+                onChange={(e) => {
+                  const newModel = e.target.value;
+                  setCurrentModel(newModel);
+                  if (currentProvider === "deepseek") {
+                    setModel(newModel);
+                  } else if (currentProvider === "zhipu") {
+                    setZhipuModel(newModel);
+                  } else {
+                    setGeminiModel(newModel);
+                  }
+                }}
+                variant="compact"
               >
                 {currentProvider === "deepseek" ? (
                   <>
-                    <option value="deepseek-chat">Chat</option>
-                    <option value="deepseek-coder">Coder</option>
+                    <Option value="deepseek-chat">DeepSeek-V3</Option>
+                  <Option value="deepseek-reasoner">DeepSeek-R1</Option>
+                  </>
+                ) : currentProvider === "zhipu" ? (
+                  <>
+                    <Option value="glm-4">GLM-4</Option>
+                    <Option value="glm-4v">GLM-4V</Option>
+                    <Option value="glm-3-turbo">GLM-3-Turbo</Option>
                   </>
                 ) : (
                   <>
-                    <option value="glm-4">GLM-4</option>
-                    <option value="glm-4v">GLM-4V</option>
-                    <option value="glm-3-turbo">GLM-3-Turbo</option>
+                    <Option value="gemini-pro">Gemini Pro</Option>
+                    <Option value="gemini-pro-vision">Gemini Pro Vision</Option>
+                    <Option value="gemini-1.5-pro">Gemini 1.5 Pro</Option>
                   </>
                 )}
-              </select>
+              </Select>
             </div>
           </div>
           

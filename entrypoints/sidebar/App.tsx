@@ -7,7 +7,7 @@ import { CaptureTab } from './components/tabs/CaptureTab';
 import { SettingsTab } from './components/tabs/SettingsTab';
 import { BottomActionBar } from './components/BottomActionBar';
 import { ChatDrawer } from './components/ChatDrawer';
-import { ThemeProvider, useTheme } from '../../src/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 import { type TabType } from './components';
 
 interface AppContentProps {

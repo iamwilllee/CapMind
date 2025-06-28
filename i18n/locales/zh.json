@@ -135,18 +135,23 @@
   },
   "capture": {
     "title": "智能截图",
-    "smartCapture": "智能截图",
-    "capturing": "截图中...",
-    "preview": "预览",
+    "smartCapture": "✂️ 智能元素截图",
+    "capturing": "正在截图...",
+    "preview": "截图预览",
     "analyzing": "分析中...",
-    "ocrAnalysis": "OCR分析",
+    "ocrAnalysis": "OCR 分析",
     "saveImage": "保存图片",
     "recognizedText": "识别文本",
-    "aiSummary": "AI总结",
+    "aiSummary": "AI 总结",
     "clickToStart": "点击上方按钮开始智能截图",
+    "reanalyze": "重新分析",
     "errors": {
-      "analysisFailed": "分析失败",
-      "downloadFailed": "下载失败"
+      "analysisFailed": "分析失败，请重试",
+      "downloadFailed": "下载失败，请重试"
+    },
+    "empty": {
+      "title": "暂无截图数据",
+      "subtitle": "使用智能截图功能来提取和分析当前页面的内容"
     }
   },
   "vocabulary": {
@@ -163,7 +168,7 @@
     "clickToTranslate": "点击翻译按钮开始翻译当前页面内容",
     "smartLanguageDetection": "智能语言检测",
     "speechSynthesis": "语音合成",
-      "autoDetect": "自动检测",
+    "autoDetect": "自动检测",
     "errors": {
       "timeout": "获取页面内容超时",
       "noContent": "页面没有可翻译的内容",
@@ -171,82 +176,25 @@
       "pageTranslationFailed": "页面翻译失败"
     }
   },
-  "common": {
-     "translating": "翻译中...",
-     "translate": "翻译",
-     "test": "测试",
-     "loading": "加载中...",
-     "save": "保存"
-   },
   "settings": {
-     "title": "设置",
-     "welcome": {
-       "title": "欢迎使用 CapMind",
-       "subtitle": "为了获得最佳体验，请先配置您的 API 密钥。配置完成后，您就可以使用所有 AI 功能了！"
-     },
-     "ai": {
-       "title": "AI 设置",
-       "apiKey": "DeepSeek API Key",
-       "apiKeyPlaceholder": "请输入您的 DeepSeek API Key",
-       "enterApiKey": "请先输入 API Key",
-       "validating": "验证中...",
-       "testSuccess": "API Key 验证成功！",
-       "testFailed": "API Key 验证失败，请检查密钥是否正确",
-       "networkError": "网络错误，请检查网络连接",
-       "getApiKey": "获取 API Key",
-       "visitPlatform": "访问",
-       "deepseekPlatform": "DeepSeek 平台",
-       "model": "AI 模型",
-       "models": {
-         "chat": "DeepSeek Chat (通用对话)",
-         "coder": "DeepSeek Coder (代码专用)"
-       }
-     },
-     "ocr": {
-       "apiKey": "OCR.Space API Key",
-       "apiKeyPlaceholder": "请输入您的 OCR.Space API Key (可选)",
-       "getApiKey": "获取 API Key",
-       "visitApi": "访问",
-       "ocrSpaceApi": "OCR.Space API",
-       "freeLimit": "免费版每月500次"
-     },
-     "capture": {
-       "title": "截图设置",
-       "autoSave": "自动保存截图",
-       "autoSaveDesc": "截图后自动保存到下载文件夹",
-       "enableAI": "启用 AI 分析",
-       "enableAIDesc": "对截图内容进行 OCR 识别和 AI 总结"
-     },
-     "learning": {
-       "title": "学习设置",
-       "autoAddWords": "自动添加生词",
-       "autoAddWordsDesc": "翻译时自动将生词添加到词汇本",
-       "showPhonetics": "显示音标",
-       "showPhoneticsDesc": "在翻译结果中显示单词音标"
-     },
-     "saveSuccess": "设置保存成功！",
-       "saveFailed": "设置保存失败，请重试",
-      "language": {
-        "title": "语言设置",
-        "interface": "界面语言"
-      },
+    "title": "设置",
     "welcome": {
-      "title": "欢迎使用 CapMind！",
-      "subtitle": "为了使用 AI 功能，请先配置您的 DeepSeek API Key。"
+      "title": "欢迎使用 CapMind",
+      "subtitle": "为了获得最佳体验，请先配置您的 API 密钥。配置完成后，您就可以使用所有 AI 功能了！"
     },
     "ai": {
       "title": "AI 设置",
       "apiKey": "DeepSeek API Key",
       "apiKeyPlaceholder": "请输入您的 DeepSeek API Key",
-      "model": "AI 模型",
+      "enterApiKey": "请先输入 API Key",
+      "validating": "正在验证 API Key...",
+      "testSuccess": "API Key 验证成功！",
+      "testFailed": "API Key 验证失败，请检查密钥是否正确",
+      "networkError": "网络错误，请检查网络连接",
       "getApiKey": "获取 API Key",
       "visitPlatform": "访问",
       "deepseekPlatform": "DeepSeek 平台",
-      "enterApiKey": "请先输入 API Key",
-      "validating": "正在验证 API Key...",
-      "testSuccess": "API Key 验证成功",
-      "testFailed": "API Key 验证失败",
-      "networkError": "网络连接失败",
+      "model": "AI 模型",
       "models": {
         "chat": "DeepSeek Chat - 通用对话模型",
         "coder": "DeepSeek Coder - 代码专用模型"
@@ -289,126 +237,8 @@
       "interface": "界面语言",
       "chinese": "中文",
       "english": "English"
-    }
-  },
-  "vocabulary": {
-    "unknownPage": "未知页面",
-    "translationProgress": "翻译进度",
-    "hideOriginal": "隐藏原文",
-    "showOriginal": "显示原文",
-    "original": "原文",
-    "translation": "译文",
-    "readOriginal": "朗读原文",
-    "readTranslation": "朗读译文",
-    "readText": "朗读文本",
-    "readyToTranslate": "准备翻译",
-    "clickToTranslate": "点击上方按钮开始翻译当前页面内容",
-    "smartLanguageDetection": "智能语言检测",
-    "speechSynthesis": "语音合成",
-    "errors": {
-      "timeout": "获取页面内容超时",
-      "noContent": "页面没有可翻译的内容",
-      "translationFailed": "翻译失败",
-      "pageTranslationFailed": "页面翻译失败"
-    }
-  },
-  "capture": {
-    "title": "智能截图",
-    "smartCapture": "✂️ 智能元素截图",
-    "capturing": "正在截图...",
-    "preview": "截图预览",
-    "analyzing": "分析中...",
-    "ocrAnalysis": "OCR 分析",
-    "saveImage": "保存图片",
-    "recognizedText": "识别文本",
-    "aiSummary": "AI 总结",
-    "clickToStart": "点击上方按钮开始智能截图",
-    "reanalyze": "重新分析",
-    "errors": {
-      "analysisFailed": "分析失败，请重试",
-      "downloadFailed": "下载失败，请重试"
     },
-    "empty": {
-      "title": "暂无截图数据",
-      "subtitle": "使用智能截图功能来提取和分析当前页面的内容"
-    }
-  },
-  "overview": {
-    "pageTitle": "标题",
-    "pageUrl": "网址",
-    "pageContent": "内容",
-    "analysisPrompt": "请分析以下网页内容，并按照以下JSON格式返回结构化的总结：",
-    "webContent": "网页内容",
-    "mainPoints": "主要要点",
-    "keyTopics": "关键主题",
-    "pageContentAnalysis": "页面内容分析",
-    "analyzing": "分析中",
-    "refresh": "刷新",
-    "reanalyze": "重新分析",
-    "analyzingPageContent": "正在分析页面内容...",
-    "aiAnalyzingInfo": "AI 正在提取并分析当前网页的关键信息",
-    "promptFields": {
-      "title": "页面主题标题",
-      "summary": "简洁的内容摘要（2-3句话）",
-      "point1": "要点1",
-      "point2": "要点2",
-      "point3": "要点3",
-      "topic1": "关键主题1",
-      "topic2": "关键主题2",
-      "topic3": "关键主题3"
-    },
-    "defaultAnalysis": {
-      "title": "内容分析",
-      "aiResult": "AI分析结果",
-      "checkDetails": "请查看详细内容",
-      "webContent": "网页内容",
-      "smartAnalysis": "智能分析"
-    },
-    "welcome": {
-      "title": "欢迎使用 CapMind！",
-      "configRequired": "需要配置 API Key",
-      "firstTimeMessage": "为了使用 AI 功能，请先在设置中配置您的 DeepSeek API Key。",
-      "configMessage": "检测到您还未配置 DeepSeek API Key，请前往设置页面进行配置。",
-      "goToSettings": "前往设置",
-      "subtitle": "您的智能网页浏览助手",
-      "features": [
-        "智能内容分析",
-        "即时翻译",
-        "AI 问答",
-        "截图捕获"
-      ],
-      "getStarted": "开始使用"
-    },
-    "featureDescription": {
-      "title": "功能说明",
-      "autoAnalysis": "打开 Overview 页面时，AI 将自动分析当前网页内容",
-      "treeStructure": "分析结果将以树状结构展示，包含主要要点和关键主题",
-      "refreshButton": "点击右上角刷新按钮可重新分析页面内容",
-      "aiTechnology": "基于 DeepSeek AI 技术，提供智能内容理解"
-    },
-    "aiReady": {
-      "title": "AI 功能已就绪",
-      "message": "您已成功配置 API Key，可以开始使用所有 AI 功能了！"
-    },
-    "errors": {
-      "cannotGetContent": "无法获取页面内容",
-      "cannotGetCurrentPage": "无法获取当前页面",
-      "apiRequestFailed": "API 请求失败",
-      "configureApiKey": "请先配置 DeepSeek API Key",
-      "analysisFailedCheckKey": "分析页面失败，请检查API Key是否正确"
-    },
-    "empty": {
-      "title": "需要设置",
-      "subtitle": "请在设置中配置您的 API Key 以启用 AI 分析功能",
-      "button": "前往设置"
-    },
-    "analysis": {
-       "title": "内容摘要",
-       "mainPoints": "主要观点",
-       "keyTopics": "关键话题"
-     },
-     "structure": {
-       "title": "页面结构"
-     }
-   }
- }
+    "saveSuccess": "设置保存成功！",
+    "saveFailed": "设置保存失败，请重试"
+  }
+}
