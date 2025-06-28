@@ -290,6 +290,32 @@ export function extractEntities(text: string): string[] {
 }
 
 /**
+ * 获取OCR语言代码
+ */
+async function getOCRLanguage(): Promise<string> {
+  try {
+    const result = await chrome.storage.sync.get(['primary_language']);
+    const primaryLanguage = result.primary_language || 'en';
+    
+    // 语言映射表
+    const languageMap: { [key: string]: string } = {
+      'en': 'eng',
+      'zh': 'chs',
+      'ja': 'jpn',
+      'ko': 'kor',
+      'fr': 'fre',
+      'de': 'ger',
+      'es': 'spa'
+    };
+    
+    return languageMap[primaryLanguage] || 'eng'; // 默认英文
+  } catch (error) {
+    console.error('获取OCR语言设置失败:', error);
+    return 'eng'; // 默认英文
+  }
+}
+
+/**
  * 使用OCR.space API进行OCR识别
  */
 export async function analyzeImageWithOCRSpace(imageDataUrl: string): Promise<string> {
@@ -300,6 +326,9 @@ export async function analyzeImageWithOCRSpace(imageDataUrl: string): Promise<st
       throw new Error('请先设置OCR.space API密钥');
     }
     
+    // 获取OCR语言设置
+    const ocrLanguage = await getOCRLanguage();
+    
     // 将DataURL转换为Blob
     const response = await fetch(imageDataUrl);
     const blob = await response.blob();
@@ -308,7 +337,7 @@ export async function analyzeImageWithOCRSpace(imageDataUrl: string): Promise<st
     const formData = new FormData();
     formData.append('file', blob, 'image.png');
     formData.append('apikey', apiKey);
-    formData.append('language', 'chs'); // 默认中文，可以根据需要调整
+    formData.append('language', ocrLanguage); // 使用设置的语言
     formData.append('isOverlayRequired', 'false');
     formData.append('detectOrientation', 'true');
     formData.append('scale', 'true');

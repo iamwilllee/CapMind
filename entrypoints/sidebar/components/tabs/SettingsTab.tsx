@@ -16,8 +16,11 @@ import { useTheme } from "../../../../src/contexts/ThemeContext";
 
 export const SettingsTab = () => {
   const [apiKey, setApiKey] = useState("");
+  const [zhipuApiKey, setZhipuApiKey] = useState("");
   const [ocrApiKey, setOcrApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
+  const [zhipuModel, setZhipuModel] = useState("glm-4");
+  const [defaultProvider, setDefaultProvider] = useState("deepseek");
   const [autoSaveScreenshots, setAutoSaveScreenshots] = useState(true);
   const [enableAIAnalysis, setEnableAIAnalysis] = useState(true);
   const [autoAddWords, setAutoAddWords] = useState(true);
@@ -41,8 +44,11 @@ export const SettingsTab = () => {
       try {
         const result = await chrome.storage.sync.get([
           "deepseekApiKey",
+          "zhipuApiKey",
           "ocrSpaceApiKey",
           "ai_model",
+          "zhipu_model",
+          "default_provider",
           "auto_save_screenshots",
           "enable_ai_analysis",
           "auto_add_words",
@@ -55,12 +61,19 @@ export const SettingsTab = () => {
         if (result.deepseekApiKey) {
           setApiKey(result.deepseekApiKey);
         }
+        if (result.zhipuApiKey) {
+          setZhipuApiKey(result.zhipuApiKey);
+        }
         if (result.ocrSpaceApiKey) {
           setOcrApiKey(result.ocrSpaceApiKey);
         }
         if (result.ai_model) {
           setModel(result.ai_model);
         }
+        if (result.zhipu_model) {
+          setZhipuModel(result.zhipu_model);
+        }
+        setDefaultProvider(result.default_provider ?? "deepseek");
         setAutoSaveScreenshots(result.auto_save_screenshots ?? true);
         setEnableAIAnalysis(result.enable_ai_analysis ?? true);
         setAutoAddWords(result.auto_add_words ?? true);
@@ -80,8 +93,11 @@ export const SettingsTab = () => {
     try {
       await chrome.storage.sync.set({
         deepseekApiKey: apiKey,
+        zhipuApiKey: zhipuApiKey,
         ocrSpaceApiKey: ocrApiKey,
         ai_model: model,
+        zhipu_model: zhipuModel,
+        default_provider: defaultProvider,
         first_time_setup: true,
       });
       setSaveStatus("success");
@@ -289,29 +305,100 @@ export const SettingsTab = () => {
               </a>
             </p>
           </div>
+          
+          {/* 智谱AI设置 */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
-              {t("settings.ai.model")}
+              智谱AI API Key
+            </label>
+            <input
+              type="password"
+              value={zhipuApiKey}
+              onChange={(e) => setZhipuApiKey(e.target.value)}
+              placeholder="请输入您的智谱AI API Key (可选)"
+              className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 placeholder-gray-500 dark:placeholder-zinc-500"
+            />
+            <p className="text-xs text-gray-600 dark:text-zinc-400 mt-3">
+              获取API Key: 访问{" "}
+              <a
+                href="https://open.bigmodel.cn"
+                target="_blank"
+                className="text-blue-400 hover:text-blue-300 hover:underline font-medium transition-colors"
+              >
+                智谱AI开放平台
+              </a>
+            </p>
+          </div>
+          
+          {/* 默认AI提供商 */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
+              默认AI提供商
             </label>
             <select
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
+              value={defaultProvider}
+              onChange={(e) => setDefaultProvider(e.target.value)}
               className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
             >
-              <option
-                value="deepseek-chat"
-                className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
-              >
-                {t("settings.ai.models.chat")}
+              <option value="deepseek" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🚀 DeepSeek
               </option>
-              <option
-                value="deepseek-coder"
-                className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
-              >
-                {t("settings.ai.models.coder")}
+              <option value="zhipu" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🧠 智谱AI
               </option>
             </select>
           </div>
+          
+          {/* DeepSeek模型选择 */}
+          {defaultProvider === "deepseek" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
+                {t("settings.ai.model")} (DeepSeek)
+              </label>
+              <select
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
+              >
+                <option
+                  value="deepseek-chat"
+                  className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
+                >
+                  {t("settings.ai.models.chat")}
+                </option>
+                <option
+                  value="deepseek-coder"
+                  className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200"
+                >
+                  {t("settings.ai.models.coder")}
+                </option>
+              </select>
+            </div>
+          )}
+          
+          {/* 智谱AI模型选择 */}
+          {defaultProvider === "zhipu" && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
+                模型选择 (智谱AI)
+              </label>
+              <select
+                value={zhipuModel}
+                onChange={(e) => setZhipuModel(e.target.value)}
+                className="w-full px-4 py-3 text-sm bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 cursor-pointer"
+              >
+                <option value="glm-4" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                  GLM-4 (通用对话)
+                </option>
+                <option value="glm-4v" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                  GLM-4V (多模态)
+                </option>
+                <option value="glm-3-turbo" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                  GLM-3-Turbo (快速响应)
+                </option>
+              </select>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-semibold text-gray-700 dark:text-zinc-300 mb-3">
               {t("settings.ocr.apiKey")}

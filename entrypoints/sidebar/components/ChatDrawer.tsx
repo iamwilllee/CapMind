@@ -59,7 +59,7 @@ const Typewriter: React.FC<TypewriterProps> = ({
               {children}
             </p>
           ),
-          code: ({ children, className }) => {
+          code: ({ children, className, ...props }) => {
             const isInlineCode = !className;
             if (isInlineCode) {
               return (
@@ -68,9 +68,12 @@ const Typewriter: React.FC<TypewriterProps> = ({
                 </code>
               );
             }
+            // 处理代码块中的内容，避免嵌套渲染问题
+            const codeContent = typeof children === 'string' ? children : 
+              Array.isArray(children) ? children.join('') : String(children);
             return (
-              <code className="block">
-                {children}
+              <code className="text-gray-100 dark:text-zinc-200 leading-relaxed font-mono text-sm" {...props}>
+                {codeContent}
               </code>
             );
           },
@@ -136,7 +139,12 @@ const Typewriter: React.FC<TypewriterProps> = ({
 
 export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [apiKey, setApiKey] = useState("");
+  const [zhipuApiKey, setZhipuApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
+  const [zhipuModel, setZhipuModel] = useState("glm-4");
+  const [defaultProvider, setDefaultProvider] = useState("deepseek");
+  const [currentProvider, setCurrentProvider] = useState("deepseek");
+  const [currentModel, setCurrentModel] = useState("deepseek-chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -148,30 +156,55 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
-    // 加载保存的 API Key
-    const loadApiKey = async () => {
+    // 加载保存的 API Key 和设置
+    const loadSettings = async () => {
       try {
         const result = await chrome.storage.sync.get([
           "deepseekApiKey",
+          "zhipuApiKey",
           "ai_model",
+          "zhipu_model",
+          "default_provider",
         ]);
         if (result.deepseekApiKey) {
           setApiKey(result.deepseekApiKey);
         }
+        if (result.zhipuApiKey) {
+          setZhipuApiKey(result.zhipuApiKey);
+        }
         if (result.ai_model) {
           setModel(result.ai_model);
+        }
+        if (result.zhipu_model) {
+          setZhipuModel(result.zhipu_model);
+        }
+        const provider = result.default_provider || "deepseek";
+        setDefaultProvider(provider);
+        setCurrentProvider(provider);
+        
+        // 设置当前模型
+        if (provider === "deepseek") {
+          setCurrentModel(result.ai_model || "deepseek-chat");
+        } else {
+          setCurrentModel(result.zhipu_model || "glm-4");
         }
       } catch (error) {
         console.error("加载设置失败:", error);
       }
     };
-    loadApiKey();
+    loadSettings();
   }, []);
 
   useEffect(() => {
     // Auto scroll to latest message
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const scrollToBottom = () => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+    
+    // 延迟滚动确保DOM更新完成
+    const timer = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timer);
+  }, [messages, isLoading]);
 
   useEffect(() => {
     // Get page content
@@ -204,12 +237,22 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   };
 
   const sendMessage = async (content: string) => {
-    if (!apiKey) {
-      const shouldGoToSettings = confirm(t("chat.errors.noApiKey"));
-      if (shouldGoToSettings) {
-        onClose();
-        window.dispatchEvent(new CustomEvent("switchToSettings"));
-      }
+    // 获取当前使用的API Key
+    const currentApiKey = currentProvider === "deepseek" ? apiKey : zhipuApiKey;
+    
+    // 检查API Key
+    if (!currentApiKey) {
+      const providerName = currentProvider === "deepseek" ? "DeepSeek" : "智谱AI";
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: `请先在设置中配置 ${providerName} API Key`,
+          timestamp: new Date(),
+        },
+      ]);
+      setIsLoading(false);
       return;
     }
 
@@ -248,22 +291,44 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         };
       });
 
-      const response = await fetch(
-        "https://api.deepseek.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${apiKey}`,
-          },
-          body: JSON.stringify({
-            model: model,
-            messages: apiMessages,
-            temperature: 0.7,
-            max_tokens: 2000,
-          }),
-        }
-      );
+      // 根据当前提供商选择API端点和请求格式
+      let response;
+      if (currentProvider === "deepseek") {
+        response = await fetch(
+          "https://api.deepseek.com/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentApiKey}`,
+            },
+            body: JSON.stringify({
+              model: currentModel,
+              messages: apiMessages,
+              temperature: 0.7,
+              max_tokens: 2000,
+            }),
+          }
+        );
+      } else {
+        // 智谱AI API调用
+        response = await fetch(
+          "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentApiKey}`,
+            },
+            body: JSON.stringify({
+              model: currentModel,
+              messages: apiMessages,
+              temperature: 0.7,
+              max_tokens: 2000,
+            }),
+          }
+        );
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -406,8 +471,54 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Context Hint */}
-        <div className="px-6 py-3 bg-gray-50 dark:bg-zinc-900/30 border-t border-gray-200 dark:border-zinc-800/50 backdrop-blur-sm">
+        {/* Model Selection and Context Hint */}
+        <div className="px-6 py-3 bg-gray-50 dark:bg-zinc-900/30 border-t border-gray-200 dark:border-zinc-800/50 backdrop-blur-sm space-y-3">
+          {/* Model Selection */}
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">AI提供商:</span>
+              <select
+                value={currentProvider}
+                onChange={(e) => {
+                  const provider = e.target.value;
+                  setCurrentProvider(provider);
+                  if (provider === "deepseek") {
+                    setCurrentModel(model);
+                  } else {
+                    setCurrentModel(zhipuModel);
+                  }
+                }}
+                className="text-xs px-2 py-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded focus:ring-blue-500/50 focus:ring-1 text-gray-900 dark:text-zinc-200"
+              >
+                <option value="deepseek">🚀 DeepSeek</option>
+                <option value="zhipu">🧠 智谱AI</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">模型:</span>
+              <select
+                value={currentModel}
+                onChange={(e) => setCurrentModel(e.target.value)}
+                className="text-xs px-2 py-1 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded focus:ring-blue-500/50 focus:ring-1 text-gray-900 dark:text-zinc-200"
+              >
+                {currentProvider === "deepseek" ? (
+                  <>
+                    <option value="deepseek-chat">Chat</option>
+                    <option value="deepseek-coder">Coder</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="glm-4">GLM-4</option>
+                    <option value="glm-4v">GLM-4V</option>
+                    <option value="glm-3-turbo">GLM-3-Turbo</option>
+                  </>
+                )}
+              </select>
+            </div>
+          </div>
+          
+          {/* Context Options */}
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-2">
