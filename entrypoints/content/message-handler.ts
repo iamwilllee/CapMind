@@ -21,9 +21,19 @@ export class MessageHandler {
         this.screenCapture.start();
         sendResponse({ success: true });
       } else if (message.action === 'captureComplete') {
-        // 截图完成，显示成功提示并更新侧边栏
+        // 截图完成，显示成功提示
         showSuccessMessage();
-        this.sidebarManager.updateWithCapture(message.dataUrl);
+        
+        // 发送自定义事件通知sidebar，而不是直接调用updateWithCapture
+        // 这样可以避免在智能截图模式下的重复显示问题
+        const captureEvent = new CustomEvent('captureComplete', {
+          detail: {
+            action: 'captureComplete',
+            dataUrl: message.dataUrl
+          }
+        });
+        document.dispatchEvent(captureEvent);
+        
         sendResponse({ success: true });
       } else if (message.action === 'toggleSidebar') {
         // 直接处理侧边栏切换

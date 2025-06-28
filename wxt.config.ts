@@ -3,8 +3,8 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "CapMind",
-    description: "智能浏览器插件，集成智能截图 + AI识图 + 英语学习",
+    name: "CapMind BETA",
+    description: "此扩展程序目前处于 Beta 版测试阶段",
     version: "1.0.0",
     permissions: ["activeTab", "storage", "tabs", "scripting", "contextMenus", "notifications"],
     host_permissions: ["https://*/*", "http://*/*"],

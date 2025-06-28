@@ -38,6 +38,7 @@ export const OverviewTab = () => {
   const [model, setModel] = useState("deepseek-chat");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
+  const [primaryLanguage, setPrimaryLanguage] = useState("en");
 
   useEffect(() => {
     // Check API Key configuration and first-time usage, load cached analysis results
@@ -54,13 +55,15 @@ export const OverviewTab = () => {
           "first_time_setup",
           "cached_analysis",
           "has_analyzed",
-          "cached_url"
+          "cached_url",
+          "primary_language"
         ]);
         const hasKey = !!result.deepseekApiKey;
         setHasApiKey(hasKey);
         setApiKey(result.deepseekApiKey || "");
         setModel(result.ai_model || "deepseek-chat");
         setIsFirstTime(!result.first_time_setup);
+        setPrimaryLanguage(result.primary_language || "en");
         
         // Check if URL changed, clear cache if it did
         if (result.cached_url && result.cached_url !== currentPageUrl) {
@@ -140,16 +143,29 @@ export const OverviewTab = () => {
 
   // Analyze content using DeepSeek API
   const analyzeContent = async (content: string): Promise<ContentSummary> => {
-    const prompt = `${t('overview.analysisPrompt')}
+    // Language mapping for analysis
+    const languageMap: Record<string, string> = {
+      'en': 'English',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'fr': 'French',
+      'de': 'German',
+      'es': 'Spanish'
+    };
+    
+    const targetLanguage = languageMap[primaryLanguage] || 'English';
+    
+    const prompt = `Please analyze the following web page content and provide a comprehensive summary in ${targetLanguage}. Return the result in JSON format with the following structure:
 
 {
-  "title": "${t('overview.promptFields.title')}",
-  "summary": "${t('overview.promptFields.summary')}",
-  "mainPoints": ["${t('overview.promptFields.point1')}", "${t('overview.promptFields.point2')}", "${t('overview.promptFields.point3')}"],
-  "keyTopics": ["${t('overview.promptFields.topic1')}", "${t('overview.promptFields.topic2')}", "${t('overview.promptFields.topic3')}"]
+  "title": "Page title or main topic",
+  "summary": "Brief summary of the content (2-3 sentences)",
+  "mainPoints": ["Key point 1", "Key point 2", "Key point 3"],
+  "keyTopics": ["Topic 1", "Topic 2", "Topic 3"]
 }
 
-${t('overview.webContent')}：
+Web page content:
 ${content}`;
 
     const response = await fetch(
@@ -313,32 +329,32 @@ ${content}`;
   return (
     <div className="p-6 bg-white dark:bg-zinc-950">
       {/* First-time usage guide */}
-      {(isFirstTime || !hasApiKey) && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 mb-6 backdrop-blur-sm">
-          <div className="flex items-start space-x-4">
-            <AlertCircle className="w-6 h-6 text-amber-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="font-semibold text-amber-300 mb-3 text-lg">
-                {isFirstTime ? t('overview.welcome.title') : t('overview.welcome.configRequired')}
-              </h3>
-              <p className="text-sm text-amber-200/80 mb-4 leading-relaxed">
-                {isFirstTime
-                  ? t('overview.welcome.firstTimeMessage')
-                  : t('overview.welcome.configMessage')}
-              </p>
-              <button
-                onClick={() => {
-                  // Logic to switch to settings page needs to be passed through parent component
-                  window.dispatchEvent(new CustomEvent("switchToSettings"));
-                }}
-                className="text-sm bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-400 transition-all duration-200 font-medium cursor-pointer"
-              >
-                {t('overview.welcome.goToSettings')}
-              </button>
+        {(isFirstTime || !hasApiKey) && (
+          <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/50 rounded-xl p-6 mb-6 backdrop-blur-sm">
+            <div className="flex items-start space-x-4">
+              <AlertCircle className="w-6 h-6 text-orange-500 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <h3 className="font-semibold text-orange-800 dark:text-orange-200 mb-3 text-lg">
+                  {isFirstTime ? t('overview.welcome.title') : t('overview.welcome.configRequired')}
+                </h3>
+                <p className="text-sm text-orange-700 dark:text-orange-300 mb-4 leading-relaxed">
+                  {isFirstTime
+                    ? t('overview.welcome.firstTimeMessage')
+                    : t('overview.welcome.configMessage')}
+                </p>
+                <button
+                  onClick={() => {
+                    // Logic to switch to settings page needs to be passed through parent component
+                    window.dispatchEvent(new CustomEvent("switchToSettings"));
+                  }}
+                  className="text-sm bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium cursor-pointer shadow-sm"
+                >
+                  {t('overview.welcome.goToSettings')}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
       <div className="space-y-6">
         {/* Analysis results */}
@@ -369,14 +385,14 @@ ${content}`;
 
         {/* Loading state */}
         {isLoading && !contentSummary && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 backdrop-blur-sm">
+          <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-xl p-6 backdrop-blur-sm">
             <div className="flex items-center space-x-4">
-              <RefreshCw className="w-6 h-6 text-blue-400 animate-spin flex-shrink-0" />
+              <RefreshCw className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin flex-shrink-0" />
               <div>
-                <h3 className="font-semibold text-blue-300 text-lg">
+                <h3 className="font-semibold text-blue-900 dark:text-blue-100 text-lg">
                   {t('overview.analyzingPageContent')}
                 </h3>
-                <p className="text-sm text-blue-200/80 mt-2 leading-relaxed">
+                <p className="text-sm text-blue-700 dark:text-blue-200 mt-2 leading-relaxed">
                   {t('overview.aiAnalyzingInfo')}
                 </p>
               </div>
@@ -386,12 +402,12 @@ ${content}`;
 
         {/* Feature description */}
         {!contentSummary && !isLoading && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 backdrop-blur-sm">
-            <h3 className="font-semibold text-blue-300 mb-4 flex items-center text-lg">
-              <Sparkles className="w-5 h-5 mr-3 text-blue-400" />
+          <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-xl p-6 backdrop-blur-sm">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center text-lg">
+              <Sparkles className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
               {t('overview.featureDescription.title')}
             </h3>
-            <div className="text-sm text-blue-200/80 space-y-3 leading-relaxed">
+            <div className="text-sm text-blue-700 dark:text-blue-200 space-y-3 leading-relaxed">
               <p>• {t('overview.featureDescription.autoAnalysis')}</p>
               <p>• {t('overview.featureDescription.treeStructure')}</p>
               <p>• {t('overview.featureDescription.refreshButton')}</p>
@@ -401,12 +417,12 @@ ${content}`;
         )}
 
         {hasApiKey && (
-          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 backdrop-blur-sm">
-            <div className="flex items-center space-x-3 text-green-300">
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm font-semibold">{t('overview.aiReady.title')}</span>
+          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-semibold text-green-800 dark:text-green-200">{t('overview.aiReady.title')}</span>
             </div>
-            <p className="text-sm text-green-200/80 mt-2 leading-relaxed">
+            <p className="text-sm text-green-700 dark:text-green-300 mt-2 leading-relaxed">
               {t('overview.aiReady.message')}
             </p>
           </div>

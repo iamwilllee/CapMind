@@ -72,6 +72,8 @@ export default () => {
       if (event.data.type === 'CAPTURE_DATA') {
         setCaptureData(event.data.data);
         setActiveTab('capture');
+      } else if (event.data.type === 'SWITCH_TO_CAPTURE_TAB') {
+        setActiveTab('capture');
       }
     };
 

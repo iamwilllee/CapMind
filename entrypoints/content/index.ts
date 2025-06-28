@@ -11,7 +11,7 @@ export default defineContentScript({
 
     // 初始化各个模块
     const screenCapture = new ScreenCapture();
-    const sidebarManager = new SidebarManager(ctx);
+    const sidebarManager = new SidebarManager(ctx, screenCapture);
     new MessageHandler(screenCapture, sidebarManager);
 
     // 模块初始化完成，content script 加载完毕

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Camera, Scissors, Zap, FileText, Brain, Loader2, Download } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -17,6 +17,8 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
   const [aiSummary, setAiSummary] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string>('');
+
+
 
   const handleOCRAnalysis = async () => {
     if (!captureData) return;

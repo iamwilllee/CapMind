@@ -104,18 +104,50 @@ export class ScreenCapture {
     
     // 如果是新元素，更新高亮
     if (elementUnderMouse !== this.highlightedElement) {
+      const rect = elementUnderMouse.getBoundingClientRect();
+      const existingOverlay = document.getElementById('capmind-highlight-overlay');
+      
+      if (existingOverlay) {
+        // 如果已有覆盖层，平滑过渡到新位置
+        existingOverlay.style.top = `${rect.top}px`;
+        existingOverlay.style.left = `${rect.left}px`;
+        existingOverlay.style.width = `${rect.width}px`;
+        existingOverlay.style.height = `${rect.height}px`;
+      } else {
+        // 创建新的覆盖层
+        const highlightOverlay = document.createElement('div');
+        highlightOverlay.id = 'capmind-highlight-overlay';
+        highlightOverlay.style.cssText = `
+          position: fixed;
+          top: ${rect.top}px;
+          left: ${rect.left}px;
+          width: ${rect.width}px;
+          height: ${rect.height}px;
+          background: rgba(0, 255, 136, 0.1);
+          border: 4px solid #00ff88;
+          z-index: 1000000;
+          pointer-events: none;
+          border-radius: 8px;
+          box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          opacity: 0;
+          transform: scale(0.95);
+        `;
+        document.body.appendChild(highlightOverlay);
+        
+        // 淡入动画
+        requestAnimationFrame(() => {
+          highlightOverlay.style.opacity = '1';
+          highlightOverlay.style.transform = 'scale(1)';
+        });
+      }
+      
       // 恢复之前元素的样式
       if (this.highlightedElement) {
         this.highlightedElement.style.outline = this.originalOutline;
         this.highlightedElement.style.boxShadow = this.originalBoxShadow;
         this.highlightedElement.style.position = '';
         this.highlightedElement.style.zIndex = '';
-        
-        // 移除高亮覆盖层
-        const existingOverlay = document.getElementById('capmind-highlight-overlay');
-        if (existingOverlay) {
-          existingOverlay.remove();
-        }
       }
       
       // 高亮新元素
@@ -123,30 +155,11 @@ export class ScreenCapture {
       this.originalOutline = this.highlightedElement.style.outline;
       this.originalBoxShadow = this.highlightedElement.style.boxShadow;
       
-      // 创建更明显的高亮效果
-      this.highlightedElement.style.outline = '3px solid #00ff88';
-      this.highlightedElement.style.boxShadow = '0 0 0 1px #00ff88, 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 0 2px rgba(0, 255, 136, 0.1)';
+      // 不再使用outline，只使用覆盖层来显示高亮效果
+      // this.highlightedElement.style.outline = '3px solid #00ff88';
+      // this.highlightedElement.style.boxShadow = '0 0 0 1px #00ff88, 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 0 2px rgba(0, 255, 136, 0.1)';
       this.highlightedElement.style.position = 'relative';
       this.highlightedElement.style.zIndex = '1000000';
-      
-      // 添加一个半透明的覆盖层来突出显示选中区域
-      const highlightOverlay = document.createElement('div');
-      highlightOverlay.id = 'capmind-highlight-overlay';
-      const rect = this.highlightedElement.getBoundingClientRect();
-      highlightOverlay.style.cssText = `
-        position: fixed;
-        top: ${rect.top}px;
-        left: ${rect.left}px;
-        width: ${rect.width}px;
-        height: ${rect.height}px;
-        background: rgba(0, 255, 136, 0.1);
-        border: 2px solid #00ff88;
-        z-index: 1000000;
-        pointer-events: none;
-        border-radius: 4px;
-        box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-      `;
-      document.body.appendChild(highlightOverlay);
     }
   }
   
@@ -218,29 +231,31 @@ export class ScreenCapture {
     // 获取设备像素比
     const devicePixelRatio = window.devicePixelRatio || 1;
     
-    // 发送截图请求到background script，包含设备像素比信息
-    chrome.runtime.sendMessage({
-      action: 'captureArea',
-      area: {
-        ...area,
-        devicePixelRatio
-      }
-    });
+    // 在截图前先移除所有高亮效果，避免边框被包含在截图中
+    this.removeHighlightEffects();
     
-    this.cancel();
+    // 延迟一小段时间确保DOM更新完成，然后进行截图
+    setTimeout(() => {
+      // 发送截图请求到background script，包含设备像素比信息
+      chrome.runtime.sendMessage({
+        action: 'captureArea',
+        area: {
+          ...area,
+          devicePixelRatio
+        }
+      });
+      
+      this.cancel();
+    }, 50); // 50ms延迟确保高亮效果完全移除
   }
 
-  cancel() {
-    this.isSelecting = false;
-    document.body.style.cursor = '';
-    
+  private removeHighlightEffects() {
     // 恢复高亮元素的样式
     if (this.highlightedElement) {
       this.highlightedElement.style.outline = this.originalOutline;
       this.highlightedElement.style.boxShadow = this.originalBoxShadow;
       this.highlightedElement.style.position = '';
       this.highlightedElement.style.zIndex = '';
-      this.highlightedElement = null;
     }
     
     // 移除高亮覆盖层
@@ -249,12 +264,34 @@ export class ScreenCapture {
       highlightOverlay.remove();
     }
     
+    // 移除遮罩层
+    if (this.selectionOverlay) {
+      this.selectionOverlay.style.display = 'none';
+    }
+    
+    // 移除提示信息
+    const tooltip = document.getElementById('capmind-tooltip');
+    if (tooltip) {
+      tooltip.style.display = 'none';
+    }
+  }
+
+  cancel() {
+    this.isSelecting = false;
+    document.body.style.cursor = '';
+    
+    // 移除所有高亮效果
+    this.removeHighlightEffects();
+    
+    // 清理元素引用
+    this.highlightedElement = null;
+    
     // 移除事件监听器
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('click', this.handleClick);
     document.removeEventListener('keydown', this.handleKeyDown);
     
-    // 移除遮罩层和提示信息
+    // 完全移除遮罩层和提示信息
     if (this.selectionOverlay) {
       this.selectionOverlay.remove();
       this.selectionOverlay = null;

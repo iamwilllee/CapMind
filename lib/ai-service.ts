@@ -308,7 +308,7 @@ export async function analyzeImageWithOCRSpace(imageDataUrl: string): Promise<st
     const formData = new FormData();
     formData.append('file', blob, 'image.png');
     formData.append('apikey', apiKey);
-    formData.append('language', 'chs'); // 默认英文，可以根据需要调整
+    formData.append('language', 'chs'); // 默认中文，可以根据需要调整
     formData.append('isOverlayRequired', 'false');
     formData.append('detectOrientation', 'true');
     formData.append('scale', 'true');

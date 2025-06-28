@@ -7,9 +7,12 @@ export class SidebarManager {
   private isVisible = false;
   private isPinned = false;
   private ctx: any;
+  private screenCapture: any = null;
+  private isSmartCaptureMode = false;
 
-  constructor(ctx: any) {
+  constructor(ctx: any, screenCapture?: any) {
     this.ctx = ctx;
+    this.screenCapture = screenCapture;
     this.setupEventListeners();
   }
 
@@ -37,28 +40,97 @@ export class SidebarManager {
         this.handleGetPageInfo();
       }
     });
+    
+    // Listen for capture completion events (fallback for non-smart capture)
+    document.addEventListener('captureComplete', (event: any) => {
+      if (event.detail && event.detail.action === 'captureComplete') {
+        // Only handle if this is not from smart capture mode
+        // Smart capture mode handles this in its own event listener
+        if (!this.isSmartCaptureMode) {
+          this.updateWithCapture(event.detail.dataUrl);
+        }
+      }
+    });
   }
 
   private async handleSmartCapture() {
     try {
-      // Hide sidebar for screenshot
-      this.hide();
+      // Set smart capture mode flag
+      this.isSmartCaptureMode = true;
       
-      // Wait for sidebar hide animation to complete
-      await new Promise(resolve => setTimeout(resolve, 350));
+      // Hide sidebar in floating mode to avoid interference
+      const shouldHideSidebar = !this.isPinned;
       
-      // Send message to background script to start smart capture
-      const response = await chrome.runtime.sendMessage({
-        action: 'START_CAPTURE'
-      });
+      if (shouldHideSidebar) {
+        this.hide();
+        // Wait for sidebar hide animation to complete
+        await new Promise(resolve => setTimeout(resolve, 350));
+      }
       
-      if (response && response.dataUrl) {
-        this.updateWithCapture(response.dataUrl);
+      // Start element selection mode instead of direct screenshot
+      if (this.screenCapture) {
+        this.screenCapture.start();
+        
+        // Listen for capture completion
+        const handleCaptureComplete = (event: any) => {
+          if (event.detail && event.detail.action === 'captureComplete') {
+            // Show sidebar and switch to capture tab after element capture
+            if (shouldHideSidebar) {
+              this.show();
+            }
+            
+            // Send capture data first
+            this.updateWithCapture(event.detail.dataUrl);
+            
+            // Then switch to capture tab with a small delay to ensure data is processed
+            setTimeout(() => {
+              if (this.ui && this.ui.iframe) {
+                this.ui.iframe.contentWindow?.postMessage({
+                  type: 'SWITCH_TO_CAPTURE_TAB'
+                }, '*');
+              }
+            }, 100);
+            
+            // Reset smart capture mode flag
+            this.isSmartCaptureMode = false;
+            
+            // Remove event listener
+            document.removeEventListener('captureComplete', handleCaptureComplete);
+          }
+        };
+        
+        document.addEventListener('captureComplete', handleCaptureComplete);
+      } else {
+        // Fallback to old behavior if screenCapture is not available
+        const response = await chrome.runtime.sendMessage({
+          action: 'START_CAPTURE'
+        });
+        
+        if (response && response.dataUrl) {
+          this.updateWithCapture(response.dataUrl);
+          
+          if (shouldHideSidebar) {
+            this.show();
+          }
+          
+          if (this.ui && this.ui.iframe) {
+            this.ui.iframe.contentWindow?.postMessage({
+              type: 'SWITCH_TO_CAPTURE_TAB'
+            }, '*');
+          }
+        }
+        
+        // Reset smart capture mode flag
+        this.isSmartCaptureMode = false;
       }
     } catch (error) {
       console.error('Smart capture failed:', error);
-      // If error occurs, show sidebar again
-      this.show();
+      // Reset smart capture mode flag on error
+      this.isSmartCaptureMode = false;
+      // If error occurs and sidebar was hidden, show it again
+      if (!this.isPinned && !this.isVisible) {
+        this.show();
+      }
     }
   }
 
@@ -128,12 +200,23 @@ export class SidebarManager {
     }
     
     if (this.ui) {
-      this.ui.mount();
+      // Only mount if not already mounted
+      if (!this.ui.wrapper || !document.contains(this.ui.wrapper)) {
+        this.ui.mount();
+      }
+      
       // Get wrapper element and set styles
       setTimeout(() => {
         const wrapper = this.ui.wrapper;
         if (wrapper) {
           this.updateWrapperStyles(wrapper);
+          // Show the sidebar by setting right position
+          if (this.isPinned) {
+            wrapper.style.right = '0px';
+            document.body.style.marginRight = '460px';
+          } else {
+            wrapper.style.right = '0px';
+          }
         }
       }, 0);
       this.isVisible = true;
@@ -152,12 +235,8 @@ export class SidebarManager {
       }
       
       this.isVisible = false;
-      // Delay unmounting to allow animation to complete
-      setTimeout(() => {
-        if (this.ui) {
-          this.ui.remove();
-        }
-      }, 300);
+      // Don't remove the DOM element to preserve state
+      // Just hide it with CSS transform/position
     }
   }
 
@@ -177,8 +256,9 @@ export class SidebarManager {
         data: dataUrl
       }, '*');
     }
-    // If sidebar is not open, automatically open it
-    if (!this.isVisible) {
+    // Only show sidebar if it's pinned or was already visible before capture
+    // In floating mode, don't auto-show after capture to avoid interrupting user workflow
+    if (!this.isVisible && this.isPinned) {
       this.show();
     }
   }

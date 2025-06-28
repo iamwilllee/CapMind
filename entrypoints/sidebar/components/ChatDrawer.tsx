@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Send, MessageCircle } from "lucide-react";
+import { X, Send, Sparkles, Brain } from "lucide-react";
 import { useTranslation } from "../../../src/i18n";
 import { Button } from "../../../components/ui/button";
 import ReactMarkdown from "react-markdown";
@@ -55,54 +55,76 @@ const Typewriter: React.FC<TypewriterProps> = ({
         remarkPlugins={[remarkGfm]}
         components={{
           p: ({ children }) => (
-            <p className="mb-2 last:mb-0 text-gray-800 dark:text-zinc-200">
+            <p className="mb-3 last:mb-0 text-gray-800 dark:text-zinc-200 leading-relaxed">
               {children}
             </p>
           ),
-          code: ({ children }) => (
-            <code className="bg-gray-100 dark:bg-zinc-800/50 text-blue-600 dark:text-blue-300 px-2 py-1 rounded text-xs font-mono">
-              {children}
-            </code>
-          ),
+          code: ({ children, className }) => {
+            const isInlineCode = !className;
+            if (isInlineCode) {
+              return (
+                <code className="bg-gray-100 dark:bg-zinc-800/70 text-red-600 dark:text-red-400 px-2 py-1 rounded text-xs font-mono border border-gray-200 dark:border-zinc-700">
+                  {children}
+                </code>
+              );
+            }
+            return (
+              <code className="block">
+                {children}
+              </code>
+            );
+          },
           pre: ({ children }) => (
-            <pre className="bg-gray-100 dark:bg-zinc-800/50 border border-gray-200 dark:border-zinc-700/50 p-3 rounded-lg text-xs overflow-x-auto text-gray-700 dark:text-zinc-300">
-              {children}
-            </pre>
+            <div className="relative my-4 group">
+              <pre className="bg-gray-900 dark:bg-zinc-950 border border-gray-300 dark:border-zinc-700 rounded-lg p-4 overflow-x-auto text-sm font-mono shadow-lg">
+                <code className="text-gray-100 dark:text-zinc-200 leading-relaxed">
+                  {children}
+                </code>
+              </pre>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-gray-700 text-gray-300 px-2 py-1 rounded text-xs font-mono">
+                  代码
+                </div>
+              </div>
+            </div>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-2 text-gray-800 dark:text-zinc-200">
+            <ul className="list-disc ml-4 mb-4 space-y-1 text-gray-800 dark:text-zinc-200">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-2 text-gray-800 dark:text-zinc-200">
+            <ol className="list-decimal ml-4 mb-4 space-y-1 text-gray-800 dark:text-zinc-200">
               {children}
             </ol>
           ),
           li: ({ children }) => (
-            <li className="mb-1 text-gray-800 dark:text-zinc-200">
+            <li className="text-gray-800 dark:text-zinc-200 leading-relaxed">
               {children}
             </li>
           ),
           h1: ({ children }) => (
-            <h1 className="text-lg font-bold mb-2 text-gray-900 dark:text-zinc-100">
+            <h1 className="text-lg font-bold mb-4 mt-6 first:mt-0 text-gray-900 dark:text-zinc-100 border-b border-gray-200 dark:border-zinc-700 pb-2">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-base font-bold mb-2 text-gray-900 dark:text-zinc-100">
+            <h2 className="text-base font-bold mb-3 mt-5 first:mt-0 text-gray-900 dark:text-zinc-100">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-sm font-bold mb-1 text-gray-900 dark:text-zinc-100">
+            <h3 className="text-sm font-bold mb-2 mt-4 first:mt-0 text-gray-900 dark:text-zinc-100">
               {children}
             </h3>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-blue-500/50 pl-3 italic text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-800/30 py-2 rounded-r">
+            <blockquote className="border-l-4 border-blue-500/50 pl-4 my-4 italic text-gray-600 dark:text-zinc-300 bg-gray-50 dark:bg-zinc-800/30 py-3 rounded-r">
               {children}
             </blockquote>
+          ),
+          hr: () => (
+            <hr className="my-6 border-gray-200 dark:border-zinc-700" />
           ),
         }}
       >
@@ -302,8 +324,9 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800/50 bg-gray-50 dark:bg-zinc-900/50 rounded-t-3xl backdrop-blur-sm">
           <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-500/20 rounded-xl shadow-sm">
-              <MessageCircle className="w-6 h-6 text-blue-400" />
+            <div className="relative p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl shadow-sm">
+              <Brain className="w-6 h-6 text-blue-400" />
+              <Sparkles className="w-3 h-3 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
               {t("chat.title")}
@@ -323,22 +346,17 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.length === 0 && (
             <div className="text-center text-gray-500 dark:text-zinc-400 mt-20">
-              <div className="p-6 bg-blue-500/10 rounded-2xl w-24 h-24 mx-auto mb-8 flex items-center justify-center backdrop-blur-sm">
-                <MessageCircle className="w-12 h-12 text-blue-400" />
+              <div className="relative p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl w-24 h-24 mx-auto mb-8 flex items-center justify-center backdrop-blur-sm">
+                <Brain className="w-12 h-12 text-blue-400" />
+                <Sparkles className="w-6 h-6 text-purple-400 absolute -top-2 -right-2 animate-pulse" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-2xl animate-pulse"></div>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-zinc-200 mb-3">
                 {t("chat.welcome.title")}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-zinc-400 mb-2">
+              <p className="text-sm text-gray-600 dark:text-zinc-400 leading-relaxed max-w-xs mx-auto">
                 {t("chat.welcome.subtitle")}
               </p>
-              <div className="text-xs text-gray-500 dark:text-zinc-500 space-y-1 max-w-xs mx-auto">
-                {(t("chat.welcome.features") as string[]).map(
-                  (feature, index) => (
-                    <p key={index}>• {feature}</p>
-                  )
-                )}
-              </div>
             </div>
           )}
 

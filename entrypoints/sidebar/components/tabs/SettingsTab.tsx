@@ -22,6 +22,8 @@ export const SettingsTab = () => {
   const [enableAIAnalysis, setEnableAIAnalysis] = useState(true);
   const [autoAddWords, setAutoAddWords] = useState(true);
   const [showPhonetics, setShowPhonetics] = useState(false);
+  const [primaryLanguage, setPrimaryLanguage] = useState("en");
+  const [secondaryLanguage, setSecondaryLanguage] = useState("zh");
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
@@ -45,6 +47,8 @@ export const SettingsTab = () => {
           "enable_ai_analysis",
           "auto_add_words",
           "show_phonetics",
+          "primary_language",
+          "secondary_language",
           "first_time_setup",
         ]);
 
@@ -61,6 +65,8 @@ export const SettingsTab = () => {
         setEnableAIAnalysis(result.enable_ai_analysis ?? true);
         setAutoAddWords(result.auto_add_words ?? true);
         setShowPhonetics(result.show_phonetics ?? false);
+        setPrimaryLanguage(result.primary_language ?? "en");
+        setSecondaryLanguage(result.secondary_language ?? "zh");
         setIsFirstTime(!result.first_time_setup);
       } catch (error) {
         console.error("Failed to load settings:", error);
@@ -121,6 +127,24 @@ export const SettingsTab = () => {
       await chrome.storage.sync.set({ show_phonetics: checked });
     } catch (error) {
       console.error("Failed to save phonetics setting:", error);
+    }
+  };
+
+  const handlePrimaryLanguageChange = async (language: string) => {
+    setPrimaryLanguage(language);
+    try {
+      await chrome.storage.sync.set({ primary_language: language });
+    } catch (error) {
+      console.error("Failed to save primary language setting:", error);
+    }
+  };
+
+  const handleSecondaryLanguageChange = async (language: string) => {
+    setSecondaryLanguage(language);
+    try {
+      await chrome.storage.sync.set({ secondary_language: language });
+    } catch (error) {
+      console.error("Failed to save secondary language setting:", error);
     }
   };
 
@@ -492,6 +516,72 @@ export const SettingsTab = () => {
               </option>
               <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
                 🇨🇳 中文
+              </option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3 block">
+              主语言 (Primary Language)
+            </label>
+            <select
+              value={primaryLanguage}
+              onChange={(e) => handlePrimaryLanguageChange(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 text-sm cursor-pointer"
+            >
+              <option value="en" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇺🇸 English
+              </option>
+              <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇨🇳 中文
+              </option>
+              <option value="ja" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇯🇵 日本語
+              </option>
+              <option value="ko" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇰🇷 한국어
+              </option>
+              <option value="fr" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇫🇷 Français
+              </option>
+              <option value="de" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇩🇪 Deutsch
+              </option>
+              <option value="es" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇪🇸 Español
+              </option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-zinc-300 mb-3 block">
+              第二语言 (Secondary Language)
+            </label>
+            <select
+              value={secondaryLanguage}
+              onChange={(e) => handleSecondaryLanguageChange(e.target.value)}
+              className="w-full px-4 py-3 bg-gray-100 dark:bg-zinc-800/50 border border-gray-300 dark:border-zinc-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-gray-900 dark:text-zinc-200 text-sm cursor-pointer"
+            >
+              <option value="en" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇺🇸 English
+              </option>
+              <option value="zh" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇨🇳 中文
+              </option>
+              <option value="ja" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇯🇵 日本語
+              </option>
+              <option value="ko" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇰🇷 한국어
+              </option>
+              <option value="fr" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇫🇷 Français
+              </option>
+              <option value="de" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇩🇪 Deutsch
+              </option>
+              <option value="es" className="bg-gray-100 dark:bg-zinc-800 text-gray-900 dark:text-zinc-200">
+                🇪🇸 Español
               </option>
             </select>
           </div>
