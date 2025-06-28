@@ -1,1 +1,20 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 手动定义圆角类 */
+.rounded {
+  border-radius: var(--radius);
+}
+
+.rounded-sm {
+  border-radius: calc(var(--radius) - 4px);
+}
+
+.rounded-md {
+  border-radius: calc(var(--radius) - 2px);
+}
+
+.rounded-lg {
+  border-radius: var(--radius);
+}

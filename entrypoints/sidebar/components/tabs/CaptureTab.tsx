@@ -59,7 +59,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
     <div className="p-4">
       <div className="flex items-center space-x-2 mb-4">
         <Camera className="w-5 h-5 text-green-600" />
-        <h2 className="text-lg font-semibold text-gray-900">{t('capture.title')}</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('capture.title')}</h2>
       </div>
       
       {/* Smart Capture Button */}
@@ -70,7 +70,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
           className={`w-full flex items-center justify-center space-x-3 py-4 px-6 rounded-lg font-medium transition-all ${
             isCapturing
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+              : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer'
           }`}
         >
           <Scissors className={`w-5 h-5 ${isCapturing ? 'animate-pulse' : ''}`} />
@@ -81,8 +81,8 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
       
       {captureData && (
         <div className="space-y-4">
-          <h3 className="font-medium text-gray-900">{t('capture.preview')}</h3>
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">{t('capture.preview')}</h3>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
             <img 
               src={captureData} 
               alt="Captured content" 
@@ -96,7 +96,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
               className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                 isProcessing 
                   ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
               } text-white`}
             >
               {isProcessing ? (
@@ -113,7 +113,7 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
             </button>
             <button 
               onClick={handleDownloadImage}
-              className="flex-1 flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+              className="flex-1 flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>{t('capture.saveImage')}</span>
@@ -122,32 +122,32 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
           
           {/* Error message */}
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
           
           {/* OCR recognition results */}
           {ocrText && (
             <div className="mt-4 space-y-3">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+              <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
                 <div className="flex items-center space-x-2 mb-2">
-                  <FileText className="w-4 h-4 text-gray-600" />
-                  <h4 className="font-medium text-gray-900">{t('capture.recognizedText')}</h4>
+                  <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{t('capture.recognizedText')}</h4>
                 </div>
-                <div className="text-sm text-gray-700 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-32 overflow-y-auto">
                   {ocrText}
                 </div>
               </div>
               
               {/* AI summary */}
               {aiSummary && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                   <div className="flex items-center space-x-2 mb-2">
-                    <Brain className="w-4 h-4 text-blue-600" />
-                    <h4 className="font-medium text-blue-900">{t('capture.aiSummary')}</h4>
+                    <Brain className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <h4 className="font-medium text-blue-900 dark:text-blue-100">{t('capture.aiSummary')}</h4>
                   </div>
-                  <div className="prose prose-sm prose-blue max-w-none text-blue-800">
+                  <div className="prose prose-sm prose-blue dark:prose-invert max-w-none text-blue-800 dark:text-blue-200">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
                     >
@@ -163,8 +163,8 @@ export const CaptureTab = ({ captureData, isCapturing, onSmartCapture }: Capture
       
       {!captureData && (
         <div className="text-center py-8">
-          <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">{t('capture.clickToStart')}</p>
+          <Camera className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400 text-sm">{t('capture.clickToStart')}</p>
         </div>
       )}
     </div>

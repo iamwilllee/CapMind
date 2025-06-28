@@ -274,8 +274,18 @@
       "showPhonetics": "显示音标",
       "showPhoneticsDesc": "在词汇卡片中显示国际音标"
     },
+    "theme": {
+      "title": "主题设置",
+      "description": "选择您偏好的界面主题",
+      "select": "选择主题",
+      "system": "跟随系统",
+      "light": "浅色模式",
+      "dark": "深色模式"
+    },
     "language": {
       "title": "语言设置",
+      "description": "选择您偏好的界面语言",
+      "select": "选择语言",
       "interface": "界面语言",
       "chinese": "中文",
       "english": "English"

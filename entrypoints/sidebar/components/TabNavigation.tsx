@@ -21,16 +21,16 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
   const mainTabs = getMainTabs(t);
   
   return (
-    <div className="flex border-b border-gray-200">
+    <div className="flex border-b border-gray-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-950 px-2">
       {/* 主要标签页 */}
       {mainTabs.map(({ id, label, icon: Icon }) => (
         <button
           key={id}
           onClick={() => onTabChange(id)}
-          className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-colors ${
+          className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 text-sm font-medium transition-all duration-200 rounded-t-lg mx-1 cursor-pointer ${
             activeTab === id
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-zinc-800/80 border-b-2 border-blue-400'
+              : 'text-gray-600 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800/40'
           }`}
         >
           <Icon className="w-4 h-4" />
@@ -41,10 +41,10 @@ export const TabNavigation = ({ activeTab, onTabChange }: TabNavigationProps) =>
       {/* 设置按钮 - 右对齐 */}
       <button
         onClick={() => onTabChange('settings')}
-        className={`flex items-center justify-center p-3 text-sm font-medium transition-colors ${
+        className={`flex items-center justify-center p-3 text-sm font-medium transition-all duration-200 rounded-t-lg mx-1 cursor-pointer ${
           activeTab === 'settings'
-            ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
-            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            ? 'text-gray-900 dark:text-white bg-gray-100 dark:bg-zinc-800/80 border-b-2 border-blue-400'
+            : 'text-gray-600 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-800/40'
         }`}
         title={t('tabs.settings')}
       >

@@ -274,8 +274,18 @@
       "showPhonetics": "Show phonetics",
       "showPhoneticsDesc": "Display international phonetic alphabet in vocabulary cards"
     },
+    "theme": {
+      "title": "Theme Settings",
+      "description": "Choose your preferred interface theme",
+      "select": "Select Theme",
+      "system": "Follow System",
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    },
     "language": {
       "title": "Language Settings",
+      "description": "Choose your preferred interface language",
+      "select": "Select Language",
       "interface": "Interface Language",
       "chinese": "中文",
       "english": "English"

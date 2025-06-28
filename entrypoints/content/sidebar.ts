@@ -78,7 +78,6 @@ export class SidebarManager {
           border: none;
           border-left: 1px solid #e5e7eb;
           box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
-          background: white;
         `;
         
         // Close button is already implemented in App.tsx, no need to add again

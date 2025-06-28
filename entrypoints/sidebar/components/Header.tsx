@@ -28,25 +28,25 @@ export const Header = ({ onClose }: HeaderProps) => {
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200">
-      <div className="flex items-center space-x-2">
-        <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-          <Brain className="w-4 h-4 text-white" />
+    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-950">
+      <div className="flex items-center space-x-3">
+        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
+          <Brain className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-lg font-semibold text-gray-900">CapMind</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">CapMind</h1>
       </div>
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
         <button 
           onClick={handleTogglePin} 
-          className={`p-1 hover:bg-gray-100 rounded transition-colors ${
-            isPinned ? 'text-blue-600' : 'text-gray-500'
+          className={`p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-lg transition-all duration-200 cursor-pointer ${
+            isPinned ? 'text-blue-400' : 'text-gray-600 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-300'
           }`}
-          title={isPinned ? t('header.unpin') : t('header.pin')}
+          title={isPinned ? t('common.unpin') : t('common.pin')}
         >
           {isPinned ? <Pin className="w-4 h-4" /> : <PinOff className="w-4 h-4" />}
         </button>
-        <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
-          <X className="w-4 h-4 text-gray-500" />
+        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-zinc-800/50 rounded-lg transition-all duration-200 cursor-pointer">
+          <X className="w-4 h-4 text-gray-600 dark:text-zinc-400 hover:text-gray-800 dark:hover:text-zinc-300" />
         </button>
       </div>
     </div>

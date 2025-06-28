@@ -1,5 +1,4 @@
 import { defineConfig } from "wxt";
-import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
@@ -35,7 +34,9 @@ export default defineConfig({
     ],
   },
   vite: () => ({
-    plugins: [tailwindcss()],
+    css: {
+      postcss: './postcss.config.js',
+    },
   }),
   runner: {
     binaries: {

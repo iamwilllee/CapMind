@@ -267,35 +267,35 @@ ${content}`;
   const renderTreeNode = (node: TreeNode, level: number = 0) => {
     const hasChildren = node.children && node.children.length > 0;
     const isLeaf = !hasChildren;
-    const paddingLeft = level * 20 + 8;
+    const paddingLeft = level * 24 + 12;
 
     return (
       <div key={node.id} className="relative">
         <div
-          className="flex items-center py-2 px-2 hover:bg-gray-50 rounded relative"
+          className="flex items-center py-3 px-3 hover:bg-gray-100 dark:hover:bg-zinc-800/30 rounded-lg relative transition-all duration-200"
           style={{ paddingLeft: `${paddingLeft}px` }}
         >
           {/* Dot marker */}
-          <div className="mr-3 flex items-center justify-center">
+          <div className="mr-4 flex items-center justify-center">
             <div
-              className={`w-2 h-2 rounded-full ${
+              className={`w-2.5 h-2.5 rounded-full ${
                 level === 0
-                  ? "bg-blue-600"
-                  : isLeaf
                   ? "bg-blue-400"
-                  : "bg-blue-500"
+                  : isLeaf
+                  ? "bg-cyan-400"
+                  : "bg-blue-300"
               }`}
             />
           </div>
 
-          <span className="text-sm font-medium text-gray-800">
+          <span className="text-sm font-medium text-gray-800 dark:text-zinc-200">
             {node.title}
           </span>
         </div>
 
         {/* Show content summary (top-level nodes only) */}
         {node.content && level === 0 && (
-          <div className="ml-8 mb-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border-l-4 border-blue-500">
+          <div className="ml-10 mb-3 text-sm text-gray-700 dark:text-zinc-300 bg-gray-100 dark:bg-zinc-800/40 p-4 rounded-lg border-l-4 border-blue-400 backdrop-blur-sm">
             {node.content}
           </div>
         )}
@@ -311,17 +311,17 @@ ${content}`;
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6 bg-white dark:bg-zinc-950">
       {/* First-time usage guide */}
       {(isFirstTime || !hasApiKey) && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-          <div className="flex items-start space-x-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6 mb-6 backdrop-blur-sm">
+          <div className="flex items-start space-x-4">
+            <AlertCircle className="w-6 h-6 text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="font-medium text-amber-800 mb-2">
+              <h3 className="font-semibold text-amber-300 mb-3 text-lg">
                 {isFirstTime ? t('overview.welcome.title') : t('overview.welcome.configRequired')}
               </h3>
-              <p className="text-sm text-amber-700 mb-3">
+              <p className="text-sm text-amber-200/80 mb-4 leading-relaxed">
                 {isFirstTime
                   ? t('overview.welcome.firstTimeMessage')
                   : t('overview.welcome.configMessage')}
@@ -331,7 +331,7 @@ ${content}`;
                   // Logic to switch to settings page needs to be passed through parent component
                   window.dispatchEvent(new CustomEvent("switchToSettings"));
                 }}
-                className="text-sm bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700 transition-colors"
+                className="text-sm bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-400 transition-all duration-200 font-medium cursor-pointer"
               >
                 {t('overview.welcome.goToSettings')}
               </button>
@@ -340,28 +340,28 @@ ${content}`;
         </div>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Analysis results */}
         {contentSummary && treeData.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-gray-900 flex items-center">
-                <BookOpen className="w-4 h-4 mr-2" />
+          <div className="bg-gray-50 dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800/50 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900 dark:text-zinc-100 flex items-center text-lg">
+                <BookOpen className="w-5 h-5 mr-3 text-blue-400" />
                 {t('overview.pageContentAnalysis')}
               </h3>
               <button
                 onClick={analyzeCurrentPage}
                 disabled={isLoading}
-                className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1 rounded"
+                className="flex items-center space-x-2 text-blue-400 hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800/50 cursor-pointer"
                 title={t('overview.reanalyze')}
               >
                 <RefreshCw
                   className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
                 />
-                <span className="text-sm">{isLoading ? t('overview.analyzing') : t('overview.refresh')}</span>
+                <span className="text-sm font-medium">{isLoading ? t('overview.analyzing') : t('overview.refresh')}</span>
               </button>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {treeData.map((node) => renderTreeNode(node))}
             </div>
           </div>
@@ -369,14 +369,14 @@ ${content}`;
 
         {/* Loading state */}
         {isLoading && !contentSummary && (
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center space-x-3">
-              <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center space-x-4">
+              <RefreshCw className="w-6 h-6 text-blue-400 animate-spin flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-blue-900">
+                <h3 className="font-semibold text-blue-300 text-lg">
                   {t('overview.analyzingPageContent')}
                 </h3>
-                <p className="text-sm text-blue-700 mt-1">
+                <p className="text-sm text-blue-200/80 mt-2 leading-relaxed">
                   {t('overview.aiAnalyzingInfo')}
                 </p>
               </div>
@@ -386,12 +386,12 @@ ${content}`;
 
         {/* Feature description */}
         {!contentSummary && !isLoading && (
-          <div className="bg-blue-50 rounded-lg p-4">
-            <h3 className="font-medium text-blue-900 mb-3 flex items-center">
-              <Sparkles className="w-4 h-4 mr-2" />
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6 backdrop-blur-sm">
+            <h3 className="font-semibold text-blue-300 mb-4 flex items-center text-lg">
+              <Sparkles className="w-5 h-5 mr-3 text-blue-400" />
               {t('overview.featureDescription.title')}
             </h3>
-            <div className="text-sm text-blue-700 space-y-2">
+            <div className="text-sm text-blue-200/80 space-y-3 leading-relaxed">
               <p>• {t('overview.featureDescription.autoAnalysis')}</p>
               <p>• {t('overview.featureDescription.treeStructure')}</p>
               <p>• {t('overview.featureDescription.refreshButton')}</p>
@@ -401,12 +401,12 @@ ${content}`;
         )}
 
         {hasApiKey && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2 text-green-800">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm font-medium">{t('overview.aiReady.title')}</span>
+          <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 backdrop-blur-sm">
+            <div className="flex items-center space-x-3 text-green-300">
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-semibold">{t('overview.aiReady.title')}</span>
             </div>
-            <p className="text-sm text-green-700 mt-1">
+            <p className="text-sm text-green-200/80 mt-2 leading-relaxed">
               {t('overview.aiReady.message')}
             </p>
           </div>

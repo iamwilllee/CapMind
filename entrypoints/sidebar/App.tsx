@@ -1,15 +1,64 @@
-import { useState, useEffect } from 'react';
-import {
-  Header,
-  TabNavigation,
-  BottomActionBar,
-  ChatDrawer,
-  OverviewTab,
-  CaptureTab,
-  VocabularyTab,
-  SettingsTab,
-  type TabType,
-} from './components';
+import React, { useState, useEffect } from 'react';
+import { Header } from './components/Header';
+import { TabNavigation } from './components/TabNavigation';
+import { OverviewTab } from './components/tabs/OverviewTab';
+import { VocabularyTab } from './components/tabs/VocabularyTab';
+import { CaptureTab } from './components/tabs/CaptureTab';
+import { SettingsTab } from './components/tabs/SettingsTab';
+import { BottomActionBar } from './components/BottomActionBar';
+import { ChatDrawer } from './components/ChatDrawer';
+import { ThemeProvider, useTheme } from '../../src/contexts/ThemeContext';
+import { type TabType } from './components';
+
+interface AppContentProps {
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
+  handleClose: () => void;
+  handleAskAI: () => void;
+  isChatDrawerOpen: boolean;
+  handleCloseChatDrawer: () => void;
+  renderTabContent: () => React.ReactNode;
+}
+
+const AppContent: React.FC<AppContentProps> = ({
+  activeTab,
+  setActiveTab,
+  handleClose,
+  handleAskAI,
+  isChatDrawerOpen,
+  handleCloseChatDrawer,
+  renderTabContent
+}) => {
+  const { actualTheme } = useTheme();
+
+  // 强制应用主题到容器元素
+  useEffect(() => {
+    const container = document.querySelector('#root');
+    if (container) {
+      container.className = actualTheme === 'dark' ? 'dark' : 'light';
+    }
+  }, [actualTheme]);
+
+  return (
+    <div className={`h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col overflow-hidden ${actualTheme}`}>
+      <Header onClose={handleClose} />
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <div className="flex-1 overflow-y-auto overflow-x-hidden bg-white dark:bg-zinc-950">
+        {renderTabContent()}
+      </div>
+      
+      <BottomActionBar onAskAI={handleAskAI} />
+      
+      {isChatDrawerOpen && (
+        <ChatDrawer 
+          isOpen={isChatDrawerOpen} 
+          onClose={handleCloseChatDrawer} 
+        />
+      )}
+    </div>
+  );
+};
 
 export default () => {
   const [captureData, setCaptureData] = useState<string | null>(null);
@@ -80,20 +129,16 @@ export default () => {
   };
 
   return (
-    <div className="w-full h-dvh bg-white flex flex-col overflow-hidden">
-      <Header onClose={handleClose} />
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        {renderTabContent()}
-      </div>
-      
-      <BottomActionBar onAskAI={handleAskAI} />
-      
-      <ChatDrawer 
-        isOpen={isChatDrawerOpen} 
-        onClose={handleCloseChatDrawer} 
+    <ThemeProvider>
+      <AppContent 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleClose={handleClose}
+        handleAskAI={handleAskAI}
+        isChatDrawerOpen={isChatDrawerOpen}
+        handleCloseChatDrawer={handleCloseChatDrawer}
+        renderTabContent={renderTabContent}
       />
-    </div>
+    </ThemeProvider>
   );
 };

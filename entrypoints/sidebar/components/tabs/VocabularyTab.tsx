@@ -228,30 +228,30 @@ export const VocabularyTab = () => {
 
       
       {/* URL block */}
-      <div className="bg-gradient-to-r from-white to-blue-50 border border-blue-200 rounded-xl p-5 mb-6 shadow-sm">
+      <div className="bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800/50 dark:to-gray-700/50 border border-gray-200 dark:border-gray-600/30 rounded-xl p-5 mb-6 shadow-lg backdrop-blur-sm">
         <div className="flex items-center space-x-3 mb-4">
           {pageFavicon && (
             <img src={pageFavicon} alt="" className="w-5 h-5 flex-shrink-0 rounded" />
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 truncate mb-1">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate mb-1">
               {pageTitle || t('vocabulary.unknownPage')}
             </h3>
-            <p className="text-xs text-gray-500 truncate bg-gray-100 px-2 py-1 rounded-md">{currentUrl}</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 truncate bg-gray-200 dark:bg-gray-700/50 px-2 py-1 rounded-md">{currentUrl}</p>
           </div>
         </div>
         
         {/* Translation progress bar */}
         {translationProgress.isTranslating && (
-          <div className="mb-4 bg-white rounded-lg p-3 border border-blue-100">
-            <div className="flex justify-between text-xs text-gray-700 mb-2 font-medium">
+          <div className="mb-4 bg-gray-100 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-600/30 backdrop-blur-sm">
+            <div className="flex justify-between text-xs text-gray-700 dark:text-gray-300 mb-2 font-medium">
               <span className="flex items-center">
                 <svg className="w-3 h-3 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
                 {t('vocabulary.translationProgress')}
               </span>
-              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">
+              <span className="bg-blue-500/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full text-xs">
                 {translationProgress.completed}/{translationProgress.total}
               </span>
             </div>
@@ -269,8 +269,8 @@ export const VocabularyTab = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             {/* Language selection */}
-            <div className="flex items-center space-x-2 bg-white rounded-lg p-2 border border-gray-200">
-              <span className="text-xs text-gray-600 font-medium px-2 py-1 bg-gray-100 rounded">
+            <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-600/30 backdrop-blur-sm">
+              <span className="text-xs text-gray-700 dark:text-gray-300 font-medium px-2 py-1 bg-gray-200 dark:bg-gray-700/50 rounded">
                 {detectedLanguage === 'zh' ? '🇨🇳 中文' : 
                  detectedLanguage === 'en' ? '🇺🇸 English' : 
                  detectedLanguage === 'ja' ? '🇯🇵 日本語' : 
@@ -285,7 +285,7 @@ export const VocabularyTab = () => {
               <select 
                 value={targetLanguage} 
                 onChange={(e) => setTargetLanguage(e.target.value)}
-                className="text-xs border-0 bg-transparent focus:outline-none font-medium text-gray-700"
+                className="text-xs border-0 bg-transparent focus:outline-none font-medium text-gray-700 dark:text-gray-300 cursor-pointer"
               >
                 <option value="zh">🇨🇳 中文</option>
                 <option value="en">🇺🇸 English</option>
@@ -302,10 +302,10 @@ export const VocabularyTab = () => {
             {/* Show/hide button */}
             <button
               onClick={toggleBilingualMode}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-2 rounded-lg transition-all duration-200 cursor-pointer ${
                 isBilingualMode 
                   ? 'bg-blue-500 text-white shadow-md hover:bg-blue-600' 
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                  : 'bg-gray-200 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600/30 hover:bg-gray-300 dark:hover:bg-gray-600/50 backdrop-blur-sm'
               }`}
               title={isBilingualMode ? t('vocabulary.hideOriginal') : t('vocabulary.showOriginal')}
             >
@@ -327,8 +327,8 @@ export const VocabularyTab = () => {
               disabled={isLoading || translationProgress.isTranslating}
               className={`px-4 py-2 rounded-lg font-medium text-xs transition-all duration-200 ${
                 isLoading || translationProgress.isTranslating
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg'
+                  ? 'bg-gray-300 dark:bg-gray-600/50 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-md hover:shadow-lg cursor-pointer'
               }`}
             >
               <div className="flex items-center space-x-1">
@@ -365,17 +365,17 @@ export const VocabularyTab = () => {
       <div className="space-y-3">
         {translations.length === 0 && !translationProgress.isTranslating && (
           <div className="text-center py-12 px-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 border border-blue-200">
-              <div className="bg-white rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center shadow-lg">
+            <div className="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-2xl p-8 border border-gray-200 dark:border-gray-600/30 backdrop-blur-sm">
+              <div className="bg-gray-200 dark:bg-gray-700/50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center shadow-lg backdrop-blur-sm">
                 <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('vocabulary.readyToTranslate')}</h3>
-              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('vocabulary.readyToTranslate')}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
                 {t('vocabulary.clickToTranslate')}
               </p>
-              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+              <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-1">
                   <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -412,10 +412,10 @@ export const VocabularyTab = () => {
                       {isOriginalEnglish && TTSService.isSupported() && (
                         <button
                           onClick={() => handlePlayTTS(translation.originalText, `orig-${index}`, 'en')}
-                          className={`ml-3 p-2 rounded-full transition-all duration-200 ${
+                          className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                             playingIndex === `orig-${index}` 
                               ? 'bg-blue-500 text-white shadow-lg' 
-                              : 'bg-white text-blue-500 hover:bg-blue-100 border border-blue-200'
+                              : 'bg-gray-700/50 text-blue-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
                           }`}
                           title={t('vocabulary.readOriginal')}
                         >
@@ -443,10 +443,10 @@ export const VocabularyTab = () => {
                       {isTranslatedEnglish && TTSService.isSupported() && (
                         <button
                           onClick={() => handlePlayTTS(translation.translatedText, `trans-${index}`, targetLanguage)}
-                          className={`ml-3 p-2 rounded-full transition-all duration-200 ${
+                          className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                             playingIndex === `trans-${index}` 
                               ? 'bg-green-500 text-white shadow-lg' 
-                              : 'bg-white text-green-500 hover:bg-green-100 border border-green-200'
+                              : 'bg-gray-700/50 text-green-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
                           }`}
                           title={t('vocabulary.readTranslation')}
                         >
@@ -473,10 +473,10 @@ export const VocabularyTab = () => {
                     {isTranslatedEnglish && TTSService.isSupported() && (
                       <button
                         onClick={() => handlePlayTTS(translation.translatedText, `single-${index}`, targetLanguage)}
-                        className={`ml-3 p-2 rounded-full transition-all duration-200 ${
+                        className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                           playingIndex === `single-${index}` 
                             ? 'bg-gray-500 text-white shadow-lg' 
-                            : 'bg-white text-gray-500 hover:bg-gray-100 border border-gray-200'
+                            : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
                         }`}
                         title={t('vocabulary.readText')}
                       >
