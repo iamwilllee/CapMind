@@ -12,8 +12,8 @@ export class ScreenCapture {
   private isSelecting = false;
   private selectionOverlay: HTMLDivElement | null = null;
   private highlightedElement: HTMLElement | null = null;
-  private originalOutline = '';
-  private originalBoxShadow = '';
+  private originalOutline = "";
+  private originalBoxShadow = "";
 
   constructor() {
     this.handleMouseMove = this.handleMouseMove.bind(this);
@@ -23,21 +23,21 @@ export class ScreenCapture {
 
   start() {
     if (this.isSelecting) return;
-    
+
     this.isSelecting = true;
-    document.body.style.cursor = 'pointer';
-    
+    document.body.style.cursor = "pointer";
+
     // 创建遮罩层
     this.createOverlay();
-    
+
     // 添加事件监听器
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('click', this.handleClick);
-    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener("mousemove", this.handleMouseMove);
+    document.addEventListener("click", this.handleClick);
+    document.addEventListener("keydown", this.handleKeyDown);
   }
 
   private createOverlay() {
-    this.selectionOverlay = document.createElement('div');
+    this.selectionOverlay = document.createElement("div");
     this.selectionOverlay.style.cssText = `
       position: fixed;
       top: 0;
@@ -48,12 +48,13 @@ export class ScreenCapture {
       z-index: 999999;
       pointer-events: none;
       backdrop-filter: blur(1px);
+      transition: mask 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     `;
     document.body.appendChild(this.selectionOverlay);
 
     // 创建提示信息
-    const tooltip = document.createElement('div');
-    tooltip.id = 'capmind-tooltip';
+    const tooltip = document.createElement("div");
+    tooltip.id = "capmind-tooltip";
     tooltip.style.cssText = `
       position: fixed;
       top: 20px;
@@ -70,43 +71,65 @@ export class ScreenCapture {
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(255, 255, 255, 0.2);
     `;
-    tooltip.innerHTML = '🎯 移动鼠标选择元素，点击确定截图，按 <kbd style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-size: 12px;">ESC</kbd> 取消';
+    tooltip.innerHTML =
+      '🎯 移动鼠标选择元素，点击确定截图，按 <kbd style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px; font-size: 12px;">ESC</kbd> 取消';
     document.body.appendChild(tooltip);
   }
 
   private handleMouseMove(e: MouseEvent) {
     if (!this.isSelecting) return;
-    
+
     // 临时隐藏遮罩层以获取真实的元素
     if (this.selectionOverlay) {
-      this.selectionOverlay.style.pointerEvents = 'none';
+      this.selectionOverlay.style.pointerEvents = "none";
     }
-    
+
     // 获取鼠标下的元素
-    let elementUnderMouse = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement;
-    
+    let elementUnderMouse = document.elementFromPoint(
+      e.clientX,
+      e.clientY
+    ) as HTMLElement;
+
     // 恢复遮罩层
     if (this.selectionOverlay) {
-      this.selectionOverlay.style.pointerEvents = 'none';
+      this.selectionOverlay.style.pointerEvents = "none";
     }
-    
+
     // 过滤掉不合适的元素
-    if (!elementUnderMouse || 
-        elementUnderMouse === document.body || 
-        elementUnderMouse === document.documentElement ||
-        elementUnderMouse.id === 'capmind-tooltip' ||
-        elementUnderMouse === this.selectionOverlay) {
+    if (
+      !elementUnderMouse ||
+      elementUnderMouse === document.body ||
+      elementUnderMouse === document.documentElement ||
+      elementUnderMouse.id === "capmind-tooltip" ||
+      elementUnderMouse === this.selectionOverlay
+    ) {
       return;
     }
-    
+
     // 寻找更合适的父元素（如果当前元素太小或是文本节点）
     elementUnderMouse = this.findBestElement(elementUnderMouse);
-    
+
     // 如果是新元素，更新高亮
     if (elementUnderMouse !== this.highlightedElement) {
       const rect = elementUnderMouse.getBoundingClientRect();
-      const existingOverlay = document.getElementById('capmind-highlight-overlay');
-      
+      const existingOverlay = document.getElementById(
+        "capmind-highlight-overlay"
+      );
+
+      // 更新遮罩层，使用mask属性在选中区域创建一个带圆角的"洞"
+      if (this.selectionOverlay) {
+        const leftPx = rect.left;
+        const topPx = rect.top;
+        const widthPx = rect.width;
+        const heightPx = rect.height;
+
+        // 创建SVG mask来实现圆角洞效果
+        const svgMask = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${window.innerWidth}' height='${window.innerHeight}'%3E%3Cdefs%3E%3Cmask id='hole'%3E%3Crect width='100%25' height='100%25' fill='white'/%3E%3Crect x='${leftPx}' y='${topPx}' width='${widthPx}' height='${heightPx}' rx='8' ry='8' fill='black'/%3E%3C/mask%3E%3C/defs%3E%3Crect width='100%25' height='100%25' mask='url(%23hole)' fill='white'/%3E%3C/svg%3E")`;
+
+        this.selectionOverlay.style.mask = svgMask;
+        this.selectionOverlay.style.webkitMask = svgMask;
+      }
+
       if (existingOverlay) {
         // 如果已有覆盖层，平滑过渡到新位置
         existingOverlay.style.top = `${rect.top}px`;
@@ -115,8 +138,8 @@ export class ScreenCapture {
         existingOverlay.style.height = `${rect.height}px`;
       } else {
         // 创建新的覆盖层
-        const highlightOverlay = document.createElement('div');
-        highlightOverlay.id = 'capmind-highlight-overlay';
+        const highlightOverlay = document.createElement("div");
+        highlightOverlay.id = "capmind-highlight-overlay";
         highlightOverlay.style.cssText = `
           position: fixed;
           top: ${rect.top}px;
@@ -125,7 +148,7 @@ export class ScreenCapture {
           height: ${rect.height}px;
           background: rgba(0, 255, 136, 0.1);
           border: 4px solid #00ff88;
-          z-index: 1000000;
+          z-index: 1000001;
           pointer-events: none;
           border-radius: 8px;
           box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
@@ -134,95 +157,111 @@ export class ScreenCapture {
           transform: scale(0.95);
         `;
         document.body.appendChild(highlightOverlay);
-        
+
         // 淡入动画
         requestAnimationFrame(() => {
-          highlightOverlay.style.opacity = '1';
-          highlightOverlay.style.transform = 'scale(1)';
+          highlightOverlay.style.opacity = "1";
+          highlightOverlay.style.transform = "scale(1)";
         });
       }
-      
+
       // 恢复之前元素的样式
       if (this.highlightedElement) {
         this.highlightedElement.style.outline = this.originalOutline;
         this.highlightedElement.style.boxShadow = this.originalBoxShadow;
-        this.highlightedElement.style.position = '';
-        this.highlightedElement.style.zIndex = '';
+        this.highlightedElement.style.position = "";
+        this.highlightedElement.style.zIndex = "";
       }
-      
+
       // 高亮新元素
       this.highlightedElement = elementUnderMouse;
       this.originalOutline = this.highlightedElement.style.outline;
       this.originalBoxShadow = this.highlightedElement.style.boxShadow;
-      
+
       // 不再使用outline，只使用覆盖层来显示高亮效果
       // this.highlightedElement.style.outline = '3px solid #00ff88';
       // this.highlightedElement.style.boxShadow = '0 0 0 1px #00ff88, 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 0 2px rgba(0, 255, 136, 0.1)';
-      this.highlightedElement.style.position = 'relative';
-      this.highlightedElement.style.zIndex = '1000000';
+      this.highlightedElement.style.position = "relative";
+      this.highlightedElement.style.zIndex = "1000000";
     }
   }
-  
+
   private findBestElement(element: HTMLElement): HTMLElement {
     // 如果元素太小，尝试找到更合适的父元素
     const rect = element.getBoundingClientRect();
     if (rect.width < 20 || rect.height < 20) {
       const parent = element.parentElement;
-      if (parent && parent !== document.body && parent !== document.documentElement) {
+      if (
+        parent &&
+        parent !== document.body &&
+        parent !== document.documentElement
+      ) {
         return this.findBestElement(parent);
       }
     }
-    
+
     // 优先选择有意义的容器元素
-    const meaningfulTags = ['DIV', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE', 'IMG', 'VIDEO', 'CANVAS'];
+    const meaningfulTags = [
+      "DIV",
+      "SECTION",
+      "ARTICLE",
+      "HEADER",
+      "FOOTER",
+      "NAV",
+      "MAIN",
+      "ASIDE",
+      "IMG",
+      "VIDEO",
+      "CANVAS",
+    ];
     if (!meaningfulTags.includes(element.tagName)) {
       const parent = element.parentElement;
       if (parent && meaningfulTags.includes(parent.tagName)) {
         return parent;
       }
     }
-    
+
     return element;
   }
 
   private handleClick(e: MouseEvent) {
     if (!this.isSelecting || !this.highlightedElement) return;
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     // 获取元素的位置和尺寸（相对于视口）
     const rect = this.highlightedElement.getBoundingClientRect();
-    
+
     // 确保截图区域在可见范围内
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
+
     // 计算实际的截图区域（限制在视口内）
     const left = Math.max(0, rect.left);
     const top = Math.max(0, rect.top);
     const right = Math.min(viewportWidth, rect.right);
     const bottom = Math.min(viewportHeight, rect.bottom);
-    
+
     const area: CaptureArea = {
       left: left,
       top: top,
       width: right - left,
-      height: bottom - top
+      height: bottom - top,
     };
-    
+
     // 检查截图区域是否有效
     if (area.width <= 0 || area.height <= 0) {
-      console.warn('选中的元素不在可见区域内');
+      console.warn("选中的元素不在可见区域内");
       return;
     }
-    
+
     // 执行截图
     this.captureSelectedArea(area);
   }
 
   private handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       this.cancel();
     }
   }
@@ -230,21 +269,21 @@ export class ScreenCapture {
   private captureSelectedArea(area: CaptureArea) {
     // 获取设备像素比
     const devicePixelRatio = window.devicePixelRatio || 1;
-    
+
     // 在截图前先移除所有高亮效果，避免边框被包含在截图中
     this.removeHighlightEffects();
-    
+
     // 延迟一小段时间确保DOM更新完成，然后进行截图
     setTimeout(() => {
       // 发送截图请求到background script，包含设备像素比信息
       chrome.runtime.sendMessage({
-        action: 'captureArea',
+        action: "captureArea",
         area: {
           ...area,
-          devicePixelRatio
-        }
+          devicePixelRatio,
+        },
       });
-      
+
       this.cancel();
     }, 50); // 50ms延迟确保高亮效果完全移除
   }
@@ -254,50 +293,54 @@ export class ScreenCapture {
     if (this.highlightedElement) {
       this.highlightedElement.style.outline = this.originalOutline;
       this.highlightedElement.style.boxShadow = this.originalBoxShadow;
-      this.highlightedElement.style.position = '';
-      this.highlightedElement.style.zIndex = '';
+      this.highlightedElement.style.position = "";
+      this.highlightedElement.style.zIndex = "";
     }
-    
+
     // 移除高亮覆盖层
-    const highlightOverlay = document.getElementById('capmind-highlight-overlay');
+    const highlightOverlay = document.getElementById(
+      "capmind-highlight-overlay"
+    );
     if (highlightOverlay) {
       highlightOverlay.remove();
     }
-    
-    // 移除遮罩层
+
+    // 重置遮罩层的mask并隐藏
     if (this.selectionOverlay) {
-      this.selectionOverlay.style.display = 'none';
+      this.selectionOverlay.style.mask = "none";
+      this.selectionOverlay.style.webkitMask = "none";
+      this.selectionOverlay.style.display = "none";
     }
-    
+
     // 移除提示信息
-    const tooltip = document.getElementById('capmind-tooltip');
+    const tooltip = document.getElementById("capmind-tooltip");
     if (tooltip) {
-      tooltip.style.display = 'none';
+      tooltip.style.display = "none";
     }
   }
 
   cancel() {
     this.isSelecting = false;
-    document.body.style.cursor = '';
-    
+    document.body.style.cursor = "";
+
     // 移除所有高亮效果
     this.removeHighlightEffects();
-    
+
     // 清理元素引用
     this.highlightedElement = null;
-    
+
     // 移除事件监听器
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('click', this.handleClick);
-    document.removeEventListener('keydown', this.handleKeyDown);
-    
+    document.removeEventListener("mousemove", this.handleMouseMove);
+    document.removeEventListener("click", this.handleClick);
+    document.removeEventListener("keydown", this.handleKeyDown);
+
     // 完全移除遮罩层和提示信息
     if (this.selectionOverlay) {
       this.selectionOverlay.remove();
       this.selectionOverlay = null;
     }
-    
-    const tooltip = document.getElementById('capmind-tooltip');
+
+    const tooltip = document.getElementById("capmind-tooltip");
     if (tooltip) {
       tooltip.remove();
     }
