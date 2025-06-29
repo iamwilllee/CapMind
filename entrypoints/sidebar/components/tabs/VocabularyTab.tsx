@@ -356,8 +356,8 @@ export const VocabularyTab = () => {
       
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-600/50 rounded-lg p-3 backdrop-blur-sm">
+          <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
         </div>
       )}
       
@@ -399,23 +399,23 @@ export const VocabularyTab = () => {
           const isTranslatedEnglish = /^[a-zA-Z\s\.,!?;:"'()\-\d]+$/.test(translation.translatedText.trim());
           
           return (
-            <div key={index} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
+            <div key={index} className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800/80 dark:to-gray-700/80 border border-gray-200 dark:border-gray-600/40 rounded-xl p-5 shadow-sm hover:shadow-md dark:shadow-gray-900/20 dark:hover:shadow-gray-900/30 transition-all duration-200 backdrop-blur-sm">
               {isBilingualMode ? (
                 <div className="space-y-4">
                   {/* Original text */}
-                  <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-400">
+                  <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border-l-4 border-blue-400 dark:border-blue-500">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="text-xs text-blue-600 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.original')}</div>
-                        <div className="text-sm text-gray-800 leading-relaxed">{translation.originalText}</div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.original')}</div>
+                        <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{translation.originalText}</div>
                       </div>
                       {isOriginalEnglish && TTSService.isSupported() && (
                         <button
                           onClick={() => handlePlayTTS(translation.originalText, `orig-${index}`, 'en')}
                           className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                             playingIndex === `orig-${index}` 
-                              ? 'bg-blue-500 text-white shadow-lg' 
-                              : 'bg-gray-700/50 text-blue-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
+                              ? 'bg-blue-500 text-white shadow-lg dark:shadow-blue-500/25' 
+                              : 'bg-blue-100 dark:bg-blue-800/50 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-700/60 border border-blue-200 dark:border-blue-600/50 backdrop-blur-sm'
                           }`}
                           title={t('vocabulary.readOriginal')}
                         >
@@ -434,19 +434,19 @@ export const VocabularyTab = () => {
                   </div>
                   
                   {/* Translation */}
-                  <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-400">
+                  <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border-l-4 border-green-400 dark:border-green-500">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="text-xs text-green-600 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.translation')}</div>
-                        <div className="text-sm text-gray-800 leading-relaxed">{translation.translatedText}</div>
+                        <div className="text-xs text-green-600 dark:text-green-400 font-medium mb-1 uppercase tracking-wide">{t('vocabulary.translation')}</div>
+                        <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{translation.translatedText}</div>
                       </div>
                       {isTranslatedEnglish && TTSService.isSupported() && (
                         <button
                           onClick={() => handlePlayTTS(translation.translatedText, `trans-${index}`, targetLanguage)}
                           className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                             playingIndex === `trans-${index}` 
-                              ? 'bg-green-500 text-white shadow-lg' 
-                              : 'bg-gray-700/50 text-green-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
+                              ? 'bg-green-500 text-white shadow-lg dark:shadow-green-500/25' 
+                              : 'bg-green-100 dark:bg-green-800/50 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-700/60 border border-green-200 dark:border-green-600/50 backdrop-blur-sm'
                           }`}
                           title={t('vocabulary.readTranslation')}
                         >
@@ -465,18 +465,18 @@ export const VocabularyTab = () => {
                   </div>
                 </div>
               ) : (
-                <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-gray-400">
+                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border-l-4 border-gray-400 dark:border-gray-500">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-800 leading-relaxed">{translation.translatedText}</div>
+                      <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{translation.translatedText}</div>
                     </div>
                     {isTranslatedEnglish && TTSService.isSupported() && (
                       <button
                         onClick={() => handlePlayTTS(translation.translatedText, `single-${index}`, targetLanguage)}
                         className={`ml-3 p-2 rounded-full transition-all duration-200 cursor-pointer ${
                           playingIndex === `single-${index}` 
-                            ? 'bg-gray-500 text-white shadow-lg' 
-                            : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50 border border-gray-600/30 backdrop-blur-sm'
+                            ? 'bg-gray-500 dark:bg-gray-400 text-white dark:text-gray-900 shadow-lg dark:shadow-gray-400/25' 
+                            : 'bg-gray-200 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600/70 border border-gray-300 dark:border-gray-600/50 backdrop-blur-sm'
                         }`}
                         title={t('vocabulary.readText')}
                       >
@@ -502,45 +502,45 @@ export const VocabularyTab = () => {
         {translationProgress.isTranslating && (
           <>
             {Array.from({ length: Math.min(3, translationProgress.total - translationProgress.completed) }).map((_, index) => (
-              <div key={`skeleton-${index}`} className="bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-xl p-5 shadow-sm animate-pulse">
+              <div key={`skeleton-${index}`} className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800/80 dark:to-gray-700/80 border border-gray-200 dark:border-gray-600/40 rounded-xl p-5 shadow-sm dark:shadow-gray-900/20 animate-pulse backdrop-blur-sm">
                 {isBilingualMode ? (
                   <div className="space-y-4">
                     {/* Original text skeleton */}
-                    <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-200">
+                    <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3 border-l-4 border-blue-200 dark:border-blue-600">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="h-3 bg-blue-200 rounded w-12 mb-2"></div>
+                          <div className="h-3 bg-blue-200 dark:bg-blue-700/50 rounded w-12 mb-2"></div>
                           <div className="space-y-2">
-                            <div className="h-3 bg-gray-300 rounded w-full"></div>
-                            <div className="h-3 bg-gray-300 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-full"></div>
+                            <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-3/4"></div>
                           </div>
                         </div>
-                        <div className="ml-3 w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="ml-3 w-8 h-8 bg-gray-200 dark:bg-gray-600/50 rounded-full"></div>
                       </div>
                     </div>
                     
                     {/* Translation skeleton */}
-                    <div className="bg-green-50 rounded-lg p-3 border-l-4 border-green-200">
+                    <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 border-l-4 border-green-200 dark:border-green-600">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <div className="h-3 bg-green-200 rounded w-12 mb-2"></div>
+                          <div className="h-3 bg-green-200 dark:bg-green-700/50 rounded w-12 mb-2"></div>
                           <div className="space-y-2">
-                            <div className="h-3 bg-gray-300 rounded w-full"></div>
-                            <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                            <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-full"></div>
+                            <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-2/3"></div>
                           </div>
                         </div>
-                        <div className="ml-3 w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="ml-3 w-8 h-8 bg-gray-200 dark:bg-gray-600/50 rounded-full"></div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-gray-200">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border-l-4 border-gray-200 dark:border-gray-600">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-gray-300 rounded w-full"></div>
-                        <div className="h-3 bg-gray-300 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-full"></div>
+                        <div className="h-3 bg-gray-300 dark:bg-gray-600/50 rounded w-3/4"></div>
                       </div>
-                      <div className="ml-3 w-8 h-8 bg-gray-200 rounded-full"></div>
+                      <div className="ml-3 w-8 h-8 bg-gray-200 dark:bg-gray-600/50 rounded-full"></div>
                     </div>
                   </div>
                 )}
