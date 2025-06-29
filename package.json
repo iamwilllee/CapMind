@@ -1,6 +1,6 @@
 {
   "name": "capmind",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "基于 AI 的智能网页浏览助手，集成页面内容分析、智能截图、实时翻译和 AI 问答功能",
   "type": "module",
   "scripts": {
