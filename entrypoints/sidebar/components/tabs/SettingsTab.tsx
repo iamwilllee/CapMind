@@ -17,10 +17,11 @@ export const SettingsTab = () => {
   const [apiKey, setApiKey] = useState("");
   const [zhipuApiKey, setZhipuApiKey] = useState("");
   const [geminiApiKey, setGeminiApiKey] = useState("");
+
   const [ocrApiKey, setOcrApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
   const [zhipuModel, setZhipuModel] = useState("glm-4");
-  const [geminiModel, setGeminiModel] = useState("gemini-pro");
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
   const [defaultProvider, setDefaultProvider] = useState("deepseek");
 
   const [primaryLanguage, setPrimaryLanguage] = useState("en");
@@ -48,6 +49,7 @@ export const SettingsTab = () => {
           "deepseekApiKey",
           "zhipuApiKey",
           "geminiApiKey",
+
           "ocrSpaceApiKey",
           "ai_model",
           "zhipu_model",
@@ -67,6 +69,7 @@ export const SettingsTab = () => {
         if (result.geminiApiKey) {
           setGeminiApiKey(result.geminiApiKey);
         }
+
         if (result.ocrSpaceApiKey) {
           setOcrApiKey(result.ocrSpaceApiKey);
         }
@@ -79,7 +82,22 @@ export const SettingsTab = () => {
         if (result.gemini_model) {
           setGeminiModel(result.gemini_model);
         }
-        setDefaultProvider(result.default_provider ?? "deepseek");
+        
+        // 智能选择默认提供商：从已配置API密钥的提供商中选择第一个
+        let selectedProvider = result.default_provider;
+        if (!selectedProvider) {
+          if (result.deepseekApiKey) {
+            selectedProvider = "deepseek";
+          } else if (result.zhipuApiKey) {
+            selectedProvider = "zhipu";
+          } else if (result.geminiApiKey) {
+            selectedProvider = "gemini";
+          } else {
+            selectedProvider = "deepseek"; // 默认值
+          }
+        }
+        setDefaultProvider(selectedProvider);
+        
         setPrimaryLanguage(result.primary_language ?? "en");
         setSecondaryLanguage(result.secondary_language ?? "zh");
         setIsFirstTime(!result.first_time_setup);
@@ -97,6 +115,7 @@ export const SettingsTab = () => {
         deepseekApiKey: apiKey,
         zhipuApiKey: zhipuApiKey,
         geminiApiKey: geminiApiKey,
+
         ocrSpaceApiKey: ocrApiKey,
         ai_model: model,
         zhipu_model: zhipuModel,
@@ -234,11 +253,16 @@ export const SettingsTab = () => {
       return;
     }
 
+
+
     setGeminiTestStatus("testing");
     setGeminiTestMessage(t("settings.ai.validating"));
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
+      let response;
+      
+      // Google AI Studio API
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
 
       if (response.ok) {
         setGeminiTestStatus("success");
@@ -515,15 +539,26 @@ export const SettingsTab = () => {
               value={defaultProvider}
               onChange={(e) => setDefaultProvider(e.target.value)}
             >
-              <Option value="deepseek">
-                🚀 {t("settings.ai.providers.deepseek")}
-              </Option>
-              <Option value="zhipu">
-                🧠 {t("settings.ai.providers.zhipu")}
-              </Option>
-              <Option value="gemini">
-                🌟 {t("settings.ai.providers.gemini")}
-              </Option>
+              {apiKey && (
+                <Option value="deepseek">
+                  🚀 {t("settings.ai.providers.deepseek")}
+                </Option>
+              )}
+              {zhipuApiKey && (
+                <Option value="zhipu">
+                  🧠 {t("settings.ai.providers.zhipu")}
+                </Option>
+              )}
+              {geminiApiKey && (
+                <Option value="gemini">
+                  🌟 {t("settings.ai.providers.gemini")}
+                </Option>
+              )}
+              {!apiKey && !zhipuApiKey && !geminiApiKey && (
+                <Option value="deepseek" disabled>
+                  {t("settings.ai.noApiKeysConfigured")}
+                </Option>
+              )}
             </Select>
           </div>
           
@@ -580,17 +615,11 @@ export const SettingsTab = () => {
                 value={geminiModel}
                 onChange={(e) => setGeminiModel(e.target.value)}
               >
-                <Option value="gemini-pro">
-                  {t("settings.ai.models.geminiPro")}
+                <Option value="gemini-2.5-flash">
+                  {t("settings.ai.models.gemini2Flash")}
                 </Option>
-                <Option value="gemini-pro-vision">
-                  {t("settings.ai.models.geminiProVision")}
-                </Option>
-                <Option value="gemini-1.5-pro">
-                  {t("settings.ai.models.gemini15Pro")}
-                </Option>
-                <Option value="gemini-1.5-flash">
-                  {t("settings.ai.models.gemini15Flash")}
+                <Option value="gemini-2.5-pro">
+                  {t("settings.ai.models.gemini2Pro")}
                 </Option>
               </Select>
             </div>

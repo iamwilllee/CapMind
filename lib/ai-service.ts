@@ -424,7 +424,64 @@ export async function analyzeImageWithOCRSpaceDetailed(imageDataUrl: string): Pr
 }
 
 /**
- * 获取DeepSeek API密钥
+ * 获取AI配置信息
+ */
+export async function getAIConfig(): Promise<{
+  deepseekApiKey: string;
+  zhipuApiKey: string;
+  geminiApiKey: string;
+  geminiApiType: string;
+  vertexProjectId: string;
+  vertexLocation: string;
+  defaultProvider: string;
+  model: string;
+  zhipuModel: string;
+  geminiModel: string;
+}> {
+  try {
+    const result = await chrome.storage.sync.get([
+      'deepseekApiKey',
+      'zhipuApiKey', 
+      'geminiApiKey',
+      'geminiApiType',
+      'vertexProjectId',
+      'vertexLocation',
+      'default_provider',
+      'ai_model',
+      'zhipu_model',
+      'gemini_model'
+    ]);
+    return {
+      deepseekApiKey: result.deepseekApiKey || '',
+      zhipuApiKey: result.zhipuApiKey || '',
+      geminiApiKey: result.geminiApiKey || '',
+      geminiApiType: result.geminiApiType || 'google-ai',
+      vertexProjectId: result.vertexProjectId || '',
+      vertexLocation: result.vertexLocation || 'us-central1',
+      defaultProvider: result.default_provider || 'deepseek',
+      model: result.ai_model || 'deepseek-chat',
+      zhipuModel: result.zhipu_model || 'glm-4',
+      geminiModel: result.gemini_model || 'gemini-2.5-flash'
+    };
+  } catch (error) {
+    console.error('获取AI配置失败:', error);
+    return {
+      deepseekApiKey: '',
+      zhipuApiKey: '',
+      geminiApiKey: '',
+      geminiApiType: 'google-ai',
+      vertexProjectId: '',
+      vertexLocation: 'us-central1',
+      defaultProvider: 'deepseek',
+      model: 'deepseek-chat',
+      zhipuModel: 'glm-4',
+      geminiModel: 'gemini-2.5-flash'
+    };
+  }
+}
+
+/**
+ * 获取DeepSeek API密钥（保持向后兼容）
  */
 async function getDeepSeekAPIKey(): Promise<string> {
   try {
@@ -437,14 +494,15 @@ async function getDeepSeekAPIKey(): Promise<string> {
 }
 
 /**
- * 使用DeepSeek AI总结文本
+ * 使用配置的AI服务总结文本
  */
 export async function summarizeText(text: string): Promise<string> {
   try {
-    const apiKey = await getDeepSeekAPIKey();
+    const config = await getAIConfig();
     
-    if (!apiKey) {
-      throw new Error('请先设置DeepSeek API密钥');
+    // 检查是否有任何API密钥配置
+    if (!config.deepseekApiKey && !config.zhipuApiKey && !config.geminiApiKey) {
+      throw new Error('请先配置AI API密钥');
     }
     
     if (!text || text.trim().length === 0) {
@@ -460,31 +518,160 @@ export async function summarizeText(text: string): Promise<string> {
 文本内容：
 ${text}`;
     
-    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7
-      })
-    });
+    let response: Response;
+    
+    // 根据默认提供商选择相应的API
+    if (config.defaultProvider === 'deepseek' && config.deepseekApiKey) {
+      response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.deepseekApiKey}`
+        },
+        body: JSON.stringify({
+          model: config.model,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1000,
+          temperature: 0.7
+        })
+      });
+    } else if (config.defaultProvider === 'zhipu' && config.zhipuApiKey) {
+      response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${config.zhipuApiKey}`
+        },
+        body: JSON.stringify({
+          model: config.zhipuModel,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 1000,
+          temperature: 0.7
+        })
+      });
+    } else if (config.defaultProvider === 'gemini' && config.geminiApiKey) {
+      if (config.geminiApiType === 'vertex-ai') {
+        // Vertex AI API
+        const endpoint = `https://${config.vertexLocation}-aiplatform.googleapis.com/v1/projects/${config.vertexProjectId}/locations/${config.vertexLocation}/publishers/google/models/${config.geminiModel}:generateContent`;
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.geminiApiKey}`
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1000
+            }
+          })
+        });
+      } else {
+        // Google AI Studio API
+        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1000
+            }
+          })
+        });
+      }
+    } else {
+      // 如果默认提供商不可用，尝试其他可用的API
+      if (config.deepseekApiKey) {
+        response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.deepseekApiKey}`
+          },
+          body: JSON.stringify({
+            model: config.model,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 1000,
+            temperature: 0.7
+          })
+        });
+      } else if (config.zhipuApiKey) {
+        response = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.zhipuApiKey}`
+          },
+          body: JSON.stringify({
+            model: config.zhipuModel,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 1000,
+            temperature: 0.7
+          })
+        });
+      } else if (config.geminiApiKey) {
+        if (config.geminiApiType === 'vertex-ai') {
+          // Vertex AI API
+          const endpoint = `https://${config.vertexLocation}-aiplatform.googleapis.com/v1/projects/${config.vertexProjectId}/locations/${config.vertexLocation}/publishers/google/models/${config.geminiModel}:generateContent`;
+          response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${config.geminiApiKey}`
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: prompt }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1000
+              }
+            })
+          });
+        } else {
+          // Google AI Studio API
+          response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent?key=${config.geminiApiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{ text: prompt }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1000
+              }
+            })
+          });
+        }
+      } else {
+        throw new Error('没有可用的AI API密钥');
+      }
+    }
     
     if (!response.ok) {
-      throw new Error(`DeepSeek API请求失败: ${response.status} ${response.statusText}`);
+      throw new Error(`AI API请求失败: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
-    return data.choices[0]?.message?.content || '总结生成失败';
+    
+    // 根据不同API提取响应内容
+    if (config.defaultProvider === 'gemini' || (!config.deepseekApiKey && !config.zhipuApiKey && config.geminiApiKey)) {
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || '总结生成失败';
+    } else {
+      return data.choices?.[0]?.message?.content || '总结生成失败';
+    }
     
   } catch (error) {
     console.error('文本总结失败:', error);

@@ -28,6 +28,8 @@
     "askAI": "询问AI"
   },
   "chat": {
+    "aiProvider": "AI提供商",
+    "model": "模型",
     "title": "AI 助手",
     "placeholder": "输入您的问题...",
     "error": "抱歉，发生了错误，请稍后重试。",
@@ -188,6 +190,11 @@
       "apiKeyPlaceholder": "请输入您的 DeepSeek API Key",
       "geminiApiKey": "Google Gemini API Key",
       "geminiApiKeyPlaceholder": "输入您的 Gemini API Key (可选)",
+
+
+      
+
+      
       "zhipuApiKey": "智谱AI API Key",
       "zhipuApiKeyPlaceholder": "请输入您的智谱AI API Key (可选)",
       "defaultProvider": "默认AI提供商",
@@ -211,16 +218,15 @@
         "glm4": "GLM-4 (通用对话)",
         "glm4v": "GLM-4V (多模态)",
         "glm3Turbo": "GLM-3-Turbo (快速响应)",
-        "geminiPro": "Gemini Pro (文本对话)",
-        "geminiProVision": "Gemini Pro Vision (多模态)",
-        "gemini15Pro": "Gemini 1.5 Pro (最新版本)",
-        "gemini15Flash": "Gemini 1.5 Flash (快速响应)"
+        "gemini2Pro": "Gemini 2.5 Pro (实验版)",
+        "gemini2Flash": "Gemini 2.5 Flash (快速响应)"
       },
       "providers": {
         "deepseek": "DeepSeek",
         "zhipu": "智谱AI",
         "gemini": "Google Gemini"
-      }
+      },
+      "noApiKeysConfigured": "请先配置至少一个 AI 提供商的 API Key"
     },
     "ocr": {
       "apiKey": "OCR Space API Key (可选)",

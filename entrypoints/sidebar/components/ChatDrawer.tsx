@@ -70,10 +70,17 @@ const Typewriter: React.FC<TypewriterProps> = ({
               );
             }
             // 处理代码块中的内容，避免嵌套渲染问题
-            const codeContent = typeof children === 'string' ? children : 
-              Array.isArray(children) ? children.join('') : String(children);
+            const codeContent =
+              typeof children === "string"
+                ? children
+                : Array.isArray(children)
+                ? children.join("")
+                : String(children);
             return (
-              <code className="text-gray-100 dark:text-zinc-200 leading-relaxed font-mono text-sm" {...props}>
+              <code
+                className="text-gray-100 dark:text-zinc-200 leading-relaxed font-mono text-sm"
+                {...props}
+              >
                 {codeContent}
               </code>
             );
@@ -142,11 +149,10 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [apiKey, setApiKey] = useState("");
   const [zhipuApiKey, setZhipuApiKey] = useState("");
   const [geminiApiKey, setGeminiApiKey] = useState("");
-  const [ocrApiKey, setOcrApiKey] = useState("");
   const [model, setModel] = useState("deepseek-chat");
   const [zhipuModel, setZhipuModel] = useState("glm-4");
-  const [geminiModel, setGeminiModel] = useState("gemini-pro");
-  const [defaultProvider, setDefaultProvider] = useState("deepseek");
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+  const [, setDefaultProvider] = useState("deepseek");
   const [currentProvider, setCurrentProvider] = useState("deepseek");
   const [currentModel, setCurrentModel] = useState("deepseek-chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -156,7 +162,6 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [includePageContent, setIncludePageContent] = useState(true);
   const [pageContent, setPageContent] = useState("");
-  const [showContextHint, setShowContextHint] = useState(true);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -193,14 +198,14 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         const provider = result.default_provider || "deepseek";
         setDefaultProvider(provider);
         setCurrentProvider(provider);
-        
+
         // 设置当前模型
         if (provider === "deepseek") {
           setCurrentModel(result.ai_model || "deepseek-chat");
         } else if (provider === "zhipu") {
           setCurrentModel(result.zhipu_model || "glm-4");
         } else {
-          setCurrentModel(result.gemini_model || "gemini-pro");
+          setCurrentModel(result.gemini_model || "gemini-2.5-flash");
         }
       } catch (error) {
         console.error("加载设置失败:", error);
@@ -214,7 +219,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
     const scrollToBottom = () => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
-    
+
     // 延迟滚动确保DOM更新完成
     const timer = setTimeout(scrollToBottom, 100);
     return () => clearTimeout(timer);
@@ -252,13 +257,21 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
   const sendMessage = async (content: string) => {
     // 获取当前使用的API Key
-    const currentApiKey = currentProvider === "deepseek" ? apiKey : 
-                         currentProvider === "zhipu" ? zhipuApiKey : geminiApiKey;
-    
+    const currentApiKey =
+      currentProvider === "deepseek"
+        ? apiKey
+        : currentProvider === "zhipu"
+        ? zhipuApiKey
+        : geminiApiKey;
+
     // 检查API Key
     if (!currentApiKey) {
-      const providerName = currentProvider === "deepseek" ? "DeepSeek" : 
-                          currentProvider === "zhipu" ? "智谱AI" : "Google Gemini";
+      const providerName =
+        currentProvider === "deepseek"
+          ? "DeepSeek"
+          : currentProvider === "zhipu"
+          ? "智谱AI"
+          : "Google Gemini";
       setMessages((prev) => [
         ...prev,
         {
@@ -339,14 +352,15 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         };
       } else {
         // Google Gemini
+        // Google AI Studio API
         apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${currentApiKey}`;
         headers = {
           "Content-Type": "application/json",
         };
         requestBody = {
-          contents: apiMessages.map(msg => ({
+          contents: apiMessages.map((msg) => ({
             parts: [{ text: msg.content }],
-            role: msg.role === "assistant" ? "model" : "user"
+            role: msg.role === "assistant" ? "model" : "user",
           })),
           generationConfig: {
             temperature: 0.7,
@@ -371,13 +385,16 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
 
       const data = await response.json();
       let assistantContent: string;
-      
+
       if (currentProvider === "gemini") {
-        assistantContent = data.candidates?.[0]?.content?.parts?.[0]?.text || t("chat.errors.noResponse");
+        assistantContent =
+          data.candidates?.[0]?.content?.parts?.[0]?.text ||
+          t("chat.errors.noResponse");
       } else {
-        assistantContent = data.choices?.[0]?.message?.content || t("chat.errors.noResponse");
+        assistantContent =
+          data.choices?.[0]?.message?.content || t("chat.errors.noResponse");
       }
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
@@ -516,7 +533,9 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           {/* Model Selection */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">AI提供商:</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">
+                {t('chat.aiProvider')}:
+              </span>
               <Select
                 value={currentProvider}
                 onChange={(e) => {
@@ -527,7 +546,11 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                   } else if (provider === "zhipu") {
                     setCurrentModel(zhipuModel);
                   } else {
-                    setCurrentModel(geminiModel);
+                    // 确保 Gemini 提供商使用正确的默认模型
+                    const defaultGeminiModel =
+                      geminiModel || "gemini-2.5-flash";
+                    setCurrentModel(defaultGeminiModel);
+                    setGeminiModel(defaultGeminiModel);
                   }
                 }}
                 variant="compact"
@@ -537,9 +560,11 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                 <Option value="gemini">🌟 Google Gemini</Option>
               </Select>
             </div>
-            
+
             <div className="flex items-center space-x-2">
-              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">模型:</span>
+              <span className="text-xs font-medium text-gray-700 dark:text-zinc-300">
+                {t('chat.model')}:
+              </span>
               <Select
                 value={currentModel}
                 onChange={(e) => {
@@ -558,7 +583,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                 {currentProvider === "deepseek" ? (
                   <>
                     <Option value="deepseek-chat">DeepSeek-V3</Option>
-                  <Option value="deepseek-reasoner">DeepSeek-R1</Option>
+                    <Option value="deepseek-reasoner">DeepSeek-R1</Option>
                   </>
                 ) : currentProvider === "zhipu" ? (
                   <>
@@ -568,15 +593,14 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
                   </>
                 ) : (
                   <>
-                    <Option value="gemini-pro">Gemini Pro</Option>
-                    <Option value="gemini-pro-vision">Gemini Pro Vision</Option>
-                    <Option value="gemini-1.5-pro">Gemini 1.5 Pro</Option>
+                    <Option value="gemini-2.5-flash">Gemini 2.5 Flash</Option>
+                    <Option value="gemini-2.5-pro">Gemini 2.5 Pro</Option>
                   </>
                 )}
               </Select>
             </div>
           </div>
-          
+
           {/* Context Options */}
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center space-x-3">

@@ -28,6 +28,8 @@
     "askAI": "Ask AI"
   },
   "chat": {
+    "aiProvider": "AI Provider",
+    "model": "Model",
     "title": "AI Assistant",
     "placeholder": "Type your question...",
     "error": "Sorry, an error occurred. Please try again later.",
@@ -188,6 +190,11 @@
       "apiKeyPlaceholder": "Enter your DeepSeek API Key",
       "geminiApiKey": "Google Gemini API Key",
       "geminiApiKeyPlaceholder": "Enter your Gemini API Key (Optional)",
+
+
+      
+
+      
       "zhipuApiKey": "Zhipu AI API Key",
       "zhipuApiKeyPlaceholder": "Enter your Zhipu AI API Key (Optional)",
       "defaultProvider": "Default AI Provider",
@@ -211,16 +218,15 @@
         "glm4": "GLM-4 (General Chat)",
         "glm4v": "GLM-4V (Multimodal)",
         "glm3Turbo": "GLM-3-Turbo (Fast Response)",
-        "geminiPro": "Gemini Pro (Text Chat)",
-        "geminiProVision": "Gemini Pro Vision (Multimodal)",
-        "gemini15Pro": "Gemini 1.5 Pro (Latest)",
-        "gemini15Flash": "Gemini 1.5 Flash (Fast Response)"
+        "gemini2Pro": "Gemini 2.5 Pro (Experimental)",
+        "gemini2Flash": "Gemini 2.5 Flash (Fast Response)"
       },
       "providers": {
         "deepseek": "DeepSeek",
         "zhipu": "Zhipu AI",
         "gemini": "Google Gemini"
-      }
+      },
+      "noApiKeysConfigured": "Please configure at least one AI provider's API Key first"
     },
     "ocr": {
       "apiKey": "OCR Space API Key (Optional)",

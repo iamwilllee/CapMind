@@ -35,7 +35,13 @@ export const OverviewTab = () => {
   );
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [apiKey, setApiKey] = useState("");
+  const [zhipuApiKey, setZhipuApiKey] = useState("");
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+
   const [model, setModel] = useState("deepseek-chat");
+  const [zhipuModel, setZhipuModel] = useState("glm-4");
+  const [geminiModel, setGeminiModel] = useState("gemini-2.5-flash");
+  const [defaultProvider, setDefaultProvider] = useState("deepseek");
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [currentUrl, setCurrentUrl] = useState("");
   const [primaryLanguage, setPrimaryLanguage] = useState("en");
@@ -51,17 +57,30 @@ export const OverviewTab = () => {
         
         const result = await chrome.storage.sync.get([
           "deepseekApiKey",
+          "zhipuApiKey",
+          "geminiApiKey",
           "ai_model",
+          "zhipu_model",
+          "gemini_model",
+          "default_provider",
           "first_time_setup",
           "cached_analysis",
           "has_analyzed",
           "cached_url",
           "primary_language"
         ]);
-        const hasKey = !!result.deepseekApiKey;
+        
+        // 检查是否有任何API密钥配置
+        const hasKey = !!(result.deepseekApiKey || result.zhipuApiKey || result.geminiApiKey);
         setHasApiKey(hasKey);
+        
         setApiKey(result.deepseekApiKey || "");
+        setZhipuApiKey(result.zhipuApiKey || "");
+        setGeminiApiKey(result.geminiApiKey || "");
         setModel(result.ai_model || "deepseek-chat");
+        setZhipuModel(result.zhipu_model || "glm-4");
+        setGeminiModel(result.gemini_model || "gemini-2.5-flash");
+        setDefaultProvider(result.default_provider || "deepseek");
         setIsFirstTime(!result.first_time_setup);
         setPrimaryLanguage(result.primary_language || "en");
         
@@ -141,7 +160,7 @@ export const OverviewTab = () => {
     });
   };
 
-  // Analyze content using DeepSeek API
+  // Analyze content using configured AI API
   const analyzeContent = async (content: string): Promise<ContentSummary> => {
     // Language mapping for analysis
     const languageMap: Record<string, string> = {
@@ -168,9 +187,11 @@ export const OverviewTab = () => {
 Web page content:
 ${content}`;
 
-    const response = await fetch(
-      "https://api.deepseek.com/v1/chat/completions",
-      {
+    let response: Response;
+    
+    // 根据默认提供商选择相应的API
+    if (defaultProvider === "deepseek" && apiKey) {
+      response = await fetch("https://api.deepseek.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,24 +199,62 @@ ${content}`;
         },
         body: JSON.stringify({
           model: model,
-          messages: [
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
+          messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
           max_tokens: 1000,
         }),
-      }
-    );
+      });
+    } else if (defaultProvider === "zhipu" && zhipuApiKey) {
+      response = await fetch("https://open.bigmodel.cn/api/paas/v4/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${zhipuApiKey}`,
+        },
+        body: JSON.stringify({
+          model: zhipuModel,
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.3,
+          max_tokens: 1000,
+        }),
+      });
+    } else if (defaultProvider === "gemini" && geminiApiKey) {
+      // Google AI Studio API
+      response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiApiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }],
+            role: "user"
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2000,
+          }
+        })
+      });
+    } else {
+      throw new Error(t('overview.errors.noValidApiKey'));
+    }
 
     if (!response.ok) {
       throw new Error(`${t('overview.errors.apiRequestFailed')}: ${response.status}`);
     }
 
     const data = await response.json();
-    const result = data.choices[0]?.message?.content || "";
+    let result = "";
+    
+    // 根据不同API提取响应内容
+    if (defaultProvider === "gemini") {
+      result = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } else {
+      result = data.choices?.[0]?.message?.content || "";
+    }
 
     try {
       // 尝试解析JSON响应
