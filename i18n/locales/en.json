@@ -186,6 +186,11 @@
       "title": "AI Settings",
       "apiKey": "DeepSeek API Key",
       "apiKeyPlaceholder": "Enter your DeepSeek API Key",
+      "geminiApiKey": "Google Gemini API Key",
+      "geminiApiKeyPlaceholder": "Enter your Gemini API Key (Optional)",
+      "zhipuApiKey": "Zhipu AI API Key",
+      "zhipuApiKeyPlaceholder": "Enter your Zhipu AI API Key (Optional)",
+      "defaultProvider": "Default AI Provider",
       "enterApiKey": "Please enter API Key first",
       "validating": "Validating API Key...",
       "testSuccess": "API Key validation successful!",
@@ -194,10 +199,27 @@
       "getApiKey": "Get API Key",
       "visitPlatform": "Visit",
       "deepseekPlatform": "DeepSeek Platform",
+      "geminiPlatform": "Google AI Studio",
+      "zhipuPlatform": "Zhipu AI Platform",
       "model": "AI Model",
+      "modelSelection": "Model Selection",
       "models": {
         "chat": "DeepSeek Chat - General conversation model",
-        "coder": "DeepSeek Coder - Code-specific model"
+        "coder": "DeepSeek Coder - Code-specific model",
+        "deepseekV3": "DeepSeek-V3 (General Chat)",
+        "deepseekR1": "DeepSeek-R1 (Reasoning Model)",
+        "glm4": "GLM-4 (General Chat)",
+        "glm4v": "GLM-4V (Multimodal)",
+        "glm3Turbo": "GLM-3-Turbo (Fast Response)",
+        "geminiPro": "Gemini Pro (Text Chat)",
+        "geminiProVision": "Gemini Pro Vision (Multimodal)",
+        "gemini15Pro": "Gemini 1.5 Pro (Latest)",
+        "gemini15Flash": "Gemini 1.5 Flash (Fast Response)"
+      },
+      "providers": {
+        "deepseek": "DeepSeek",
+        "zhipu": "Zhipu AI",
+        "gemini": "Google Gemini"
       }
     },
     "ocr": {
@@ -235,6 +257,8 @@
       "description": "Choose your preferred interface language",
       "select": "Select Language",
       "interface": "Interface Language",
+      "primary": "Primary Language",
+      "secondary": "Secondary Language",
       "chinese": "中文",
       "english": "English"
     },

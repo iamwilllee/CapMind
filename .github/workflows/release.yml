@@ -78,12 +78,6 @@ jobs:
             2. 解压缩文件
             3. 在浏览器扩展管理页面启用开发者模式
             4. 点击"加载已解压的扩展程序"并选择解压后的文件夹
-
-            ### 🔧 技术栈
-            - React + TypeScript
-            - WXT 框架
-            - Tailwind CSS
-            - AI SDK (支持 DeepSeek、Google Gemini 等)
           draft: false
           prerelease: false
           files: |
