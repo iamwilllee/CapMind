@@ -15,9 +15,7 @@ export default defineBackground(() => {
       case 'START_CAPTURE':
         handleSmartCapture(sender.tab?.id, sendResponse);
         return true; // 保持消息通道开放
-      case 'lookupWord':
-        handleWordLookup(message.word);
-        break;
+
       case 'toggleSidebar':
         handleToggleSidebar(sender.tab?.id);
         break;
@@ -39,11 +37,7 @@ export default defineBackground(() => {
       contexts: ['page']
     });
 
-    chrome.contextMenus.create({
-      id: 'capmind-lookup',
-      title: 'CapMind 查词: "%s"',
-      contexts: ['selection']
-    });
+
   });
 
   // 处理右键菜单点击
@@ -59,11 +53,7 @@ export default defineBackground(() => {
           chrome.tabs.sendMessage(tab.id, { action: 'startCapture' });
         }
         break;
-      case 'capmind-lookup':
-        if (info.selectionText) {
-          handleWordLookup(info.selectionText);
-        }
-        break;
+
     }
   });
 
@@ -256,23 +246,7 @@ export default defineBackground(() => {
     }
   }
 
-  async function handleWordLookup(word: string) {
-    try {
-      // 这里可以调用词典API
-      console.log('查词:', word);
-      
-      // 简单的通知
-      chrome.notifications.create({
-        type: 'basic',
-        iconUrl: 'icon/48.png',
-        title: 'CapMind',
-        message: `正在查询单词: ${word}`
-      });
-
-    } catch (error) {
-      console.error('查词失败:', error);
-    }
-  }
+  
 
   // 监听标签页更新，清理旧的截图数据
   chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {

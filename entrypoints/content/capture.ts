@@ -147,7 +147,7 @@ export class ScreenCapture {
           width: ${rect.width}px;
           height: ${rect.height}px;
           background: rgba(0, 255, 136, 0.1);
-          border: 4px solid #00ff88;
+          border: 2px solid #00ff88;
           z-index: 1000001;
           pointer-events: none;
           border-radius: 8px;
@@ -155,6 +155,7 @@ export class ScreenCapture {
           transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
           opacity: 0;
           transform: scale(0.95);
+          box-sizing: border-box;
         `;
         document.body.appendChild(highlightOverlay);
 

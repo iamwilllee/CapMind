@@ -2,7 +2,7 @@ import { defineConfig } from "wxt";
 import { version } from "./package.json";
 
 export default defineConfig({
-  modules: ["@wxt-dev/module-react"],
+  modules: ["@wxt-dev/module-react", "@wxt-dev/auto-icons"],
   manifest: {
     name: "CapMind",
     description:
@@ -28,12 +28,6 @@ export default defineConfig({
     ],
     background: {
       service_worker: "background.js",
-    },
-    icons: {
-      16: "icon/16.png",
-      32: "icon/32.png",
-      48: "icon/48.png",
-      128: "icon/128.png",
     },
     web_accessible_resources: [
       {

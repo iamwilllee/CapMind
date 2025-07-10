@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Send, Sparkles, Brain } from "lucide-react";
+import { X, Send, Sparkles, Lollipop } from "lucide-react";
 import { useTranslation } from "../../../i18n";
 import { Button } from "../../../components/ui/button";
 import { Select, Option } from "../../../components/ui/select";
@@ -447,7 +447,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800/50 bg-gray-50 dark:bg-zinc-900/50 rounded-t-3xl backdrop-blur-sm">
           <div className="flex items-center space-x-4">
             <div className="relative p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl shadow-sm">
-              <Brain className="w-6 h-6 text-blue-400" />
+              <Lollipop className="w-6 h-6 text-blue-400" />
               <Sparkles className="w-3 h-3 text-purple-400 absolute -top-1 -right-1 animate-pulse" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-zinc-100">
@@ -469,7 +469,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({ isOpen, onClose }) => {
           {messages.length === 0 && (
             <div className="text-center text-gray-500 dark:text-zinc-400 mt-20">
               <div className="relative p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-2xl w-24 h-24 mx-auto mb-8 flex items-center justify-center backdrop-blur-sm">
-                <Brain className="w-12 h-12 text-blue-400" />
+                <Lollipop className="w-12 h-12 text-blue-400" />
                 <Sparkles className="w-6 h-6 text-purple-400 absolute -top-2 -right-2 animate-pulse" />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-2xl animate-pulse"></div>
               </div>

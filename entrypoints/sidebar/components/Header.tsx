@@ -1,4 +1,4 @@
-import { Brain, X, Pin, PinOff } from 'lucide-react';
+import { X, Pin, PinOff, Lollipop } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from '../../../i18n';
 
@@ -31,7 +31,7 @@ export const Header = ({ onClose }: HeaderProps) => {
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-950">
       <div className="flex items-center space-x-3">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg">
-          <Brain className="w-5 h-5 text-white" />
+          <Lollipop className="w-5 h-5 text-white" />
         </div>
         <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">CapMind</h1>
       </div>
