@@ -1,0 +1,32 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-13T05:40:00Z" },
+  "title": "CapMind 事项助手",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 380, "h": 840, "title": "今日 · 侧边栏主视图" },
+    "Capture.dc.html": { "x": 460, "y": 0, "w": 900, "h": 680, "title": "圈选 · 网页上的选区" },
+    "Recipe.dc.html": { "x": 1440, "y": 0, "w": 380, "h": 840, "title": "识别结果 · 签到详情" },
+    "TypeChoice.dc.html": { "x": 0, "y": 960, "w": 380, "h": 840, "title": "选择类型 · 长周期事项" },
+    "CheckinDetail.dc.html": { "x": 460, "y": 960, "w": 380, "h": 840, "title": "签到详情 · 配方与历史" },
+    "MilestoneDetail.dc.html": { "x": 920, "y": 960, "w": 380, "h": 840, "title": "长周期事项详情" },
+    "States.dc.html": { "x": 0, "y": 1920, "w": 700, "h": 840, "title": "通知 · 空状态 · 设计规范" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Capture.dc.html",
+    "Recipe.dc.html",
+    "TypeChoice.dc.html",
+    "CheckinDetail.dc.html",
+    "MilestoneDetail.dc.html",
+    "States.dc.html"
+  ],
+  "notes": {
+    "n1": { "x": 0, "y": -280, "text": "CapMind 事项助手 · 圈选识别", "kind": "title1", "maxW": 1820 },
+    "n2": { "x": 1900, "y": 60, "w": 300, "text": "核心变化：不内置站点。用户圈选一块 → AI / OCR 识别 → 生成可编辑的签到配方。" },
+    "n3": { "x": 1900, "y": 460, "w": 300, "text": "模型只在创建和重新识别时调用。每日执行是确定性规则：判据优先于点击，零模型调用、零页面上传。" },
+    "n4": { "x": 1400, "y": 1100, "w": 300, "text": "插件 ID 由 Chrome Web Store 条目决定，代码里没有 key。用同一条目上传新包即可保住 ID。" }
+  },
+  "designSystems": []
+}

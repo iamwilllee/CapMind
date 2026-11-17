@@ -1,104 +1,53 @@
-# 发布指南
+# 发布指南 · CapMind 事项助手
 
-## 自动化发布流程
+## 保住扩展 ID（重要）
 
-本项目已配置 GitHub Actions 自动化工作流，当代码推送到 `main` 分支时会自动构建并创建 Release。
+插件已上线，扩展 ID 由 **Chrome Web Store 的那个条目**决定；代码里没有 `manifest.key`，`wxt.config.ts` 与构建产物都没有。
 
-## 版本管理
+发布新版本时：
 
-### 语义化版本控制
+1. **用同一个商店条目上传新 zip**，不要新建条目；
+2. `package.json` 版本号在 `0.0.2` 基础上继续递增（当前 `0.1.0`），不要重置为 `0.0.1`；
+3. 商店描述、权限理由、隐私政策按 `CHROME_STORE_CHECKLIST.md` / `PRIVACY.md` 更新；
+4. 提交前逐条填写 `<all_urls>` 与自动点击的权限理由。
 
-项目采用 [语义化版本控制](https://semver.org/lang/zh-CN/)：
-
-- **主版本号 (Major)**：不兼容的 API 修改
-- **次版本号 (Minor)**：向下兼容的功能性新增
-- **修订号 (Patch)**：向下兼容的问题修正
-
-### 版本更新命令
+## 版本号
 
 ```bash
-# 修订版本 (1.0.0 -> 1.0.1)
-npm run version:patch
-
-# 次版本 (1.0.0 -> 1.1.0)
-npm run version:minor
-
-# 主版本 (1.0.0 -> 2.0.0)
-npm run version:major
+npm run version:patch   # 0.1.0 → 0.1.1
+npm run version:minor   # 0.1.0 → 0.2.0
+npm run version:major   # 0.1.0 → 1.0.0
 ```
 
-### 发布流程
-
-1. **开发完成后，更新版本号**
-   ```bash
-   npm run version:patch  # 或 minor/major
-   ```
-
-2. **推送到 main 分支**
-   ```bash
-   git push origin main
-   ```
-
-3. **GitHub Actions 自动执行**
-   - 安装依赖
-   - 构建扩展 (Chrome + Firefox)
-   - 打包 ZIP 文件
-   - 创建 GitHub Release
-   - 上传扩展包到 Release 附件
-
-## 手动构建
-
-如需本地构建和测试：
+## 构建
 
 ```bash
-# 构建所有平台
-npm run release
-
-# 或分别构建
-npm run build          # 构建扩展
-npm run zip            # 打包 Chrome 版本
-npm run zip:firefox    # 打包 Firefox 版本
+pnpm compile            # 类型检查
+pnpm build              # .output/chrome-mv3
+pnpm zip                # .output/chrome-mv3.zip
+pnpm build:firefox      # .output/firefox-mv2
+pnpm zip:firefox        # .output/firefox-mv2.zip
+pnpm release            # build + 两个 zip
 ```
 
-## 输出文件
+## CI
 
-构建完成后，扩展包位于 `.output/` 目录：
+`.github/workflows/release.yml` 在 push 到 `main` 时构建两个目标并创建 GitHub Release / artifact。它**不负责**上传 Chrome Web Store——商店上传需手动用同一条目提交，避免误用新条目导致 ID 变化。
 
-- `chrome-mv3.zip` - Chrome 扩展包 (Manifest V3)
-- `firefox-mv2.zip` - Firefox 扩展包 (Manifest V2)
+## 发布前冒烟测试
 
-## Release 内容
+1. `chrome://extensions` 加载 `.output/chrome-mv3`；
+2. 打开任意网页，点击图标或右键「CapMind · 打开事项」；
+3. 点「+ 圈选一块」，拖拽框选一个含按钮的区域；
+4. 确认识别结果，逐字段检查选择器与判据，点「试跑一次」；
+5. 保存，回到「今日」看板确认事项出现；
+6. 在设置里把签到时间调到几分钟后，确认 `chrome.alarms` 能触发并写入执行记录；
+7. 新建一个长周期事项，把回访频率调为 1 天，确认通知与回访记录。
 
-每个 Release 包含：
+## 相关文档
 
-- **Chrome 扩展包** - 支持 Chrome、Edge 等 Chromium 内核浏览器
-- **Firefox 扩展包** - 支持 Firefox 浏览器
-- **版本说明** - 功能更新和安装指南
-- **安装说明** - 详细的安装步骤
-
-## 注意事项
-
-1. **版本号同步**：`package.json` 和 `wxt.config.ts` 中的版本号会自动同步
-2. **标签检查**：如果版本标签已存在，不会重复创建 Release
-3. **构建缓存**：使用 pnpm 和 Node.js 缓存加速构建
-4. **文件过滤**：README 等文档更新不会触发构建
-
-## 故障排除
-
-### 构建失败
-
-1. 检查 Node.js 版本兼容性
-2. 确认所有依赖已正确安装
-3. 检查 TypeScript 编译错误
-
-### Release 创建失败
-
-1. 确认 GitHub Token 权限
-2. 检查版本号是否已存在
-3. 验证构建输出文件路径
-
-### 版本脚本错误
-
-1. 确认 Git 工作目录干净
-2. 检查文件权限
-3. 验证 Node.js 版本支持 ES modules
+- [PRD](docs/PRD.md)
+- [商店检查清单](CHROME_STORE_CHECKLIST.md)
+- [隐私政策](PRIVACY.md)
+- [安全审计](SECURITY_AUDIT.md)
+- [设计稿 canvas](../designs/capmind-tasks/project/canvas.json)

@@ -1,0 +1,251 @@
+/* 圈选遮罩：注入宿主页面，全部 cm-sel-* 前缀，高 z-index 隔离。
+   这是不可逆的一次性操作，说明和按钮必须一眼可见。 */
+
+.cm-sel-overlay,
+.cm-sel-overlay * { box-sizing: border-box; }
+
+.cm-sel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  cursor: crosshair;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  animation: cm-sel-fade .16s ease-out;
+}
+
+/* 未框选时的全屏暗层。框选开始后隐藏，改由选区的巨型 box-shadow 承担遮罩 + 挖空。
+   两个来源不能同时存在，否则选区里会被叠两层暗色。 */
+.cm-sel-shade {
+  position: absolute;
+  inset: 0;
+  /* 明确压在说明条/引导框之下：overlay 内的子元素按 z-index 排序，
+     shade 要永远在最底，否则会盖住深色 bar。 */
+  z-index: 0;
+  background: rgba(27, 26, 23, .42);
+  pointer-events: none;
+}
+.cm-sel-shade.is-hidden { display: none; }
+
+/* ── 顶部说明条 ── */
+.cm-sel-bar {
+  position: absolute;
+  z-index: 10;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px;
+  background: #1b1a17;
+  color: #ffffff;
+  z-index: 3;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .28);
+}
+.cm-sel-bar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.cm-sel-step {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #b23a1f;
+  color: #ffffff;
+  font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.cm-sel-title {
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cm-sel-bar-right { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+.cm-sel-kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 5px;
+  font: 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #e8e6de;
+  background: rgba(255, 255, 255, .06);
+}
+
+/* ── 中央引导（拖拽前） ── */
+.cm-sel-hint {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 34px;
+  border: 1px dashed rgba(255, 255, 255, .5);
+  border-radius: 10px;
+  background: rgba(27, 26, 23, .62);
+  color: #ffffff;
+  text-align: center;
+  pointer-events: none;
+  animation: cm-sel-breathe 2.4s ease-in-out infinite;
+}
+.cm-sel-hint-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #b23a1f;
+  border-radius: 6px;
+  animation: cm-sel-drag 2.4s ease-in-out infinite;
+}
+.cm-sel-hint-main { font-size: 15px; font-weight: 650; letter-spacing: .01em; }
+.cm-sel-hint-sub { font-size: 12px; color: #c9c7bf; line-height: 1.5; }
+
+/* ── 选区 ── */
+.cm-sel-box {
+  position: absolute;
+  border: 2px solid #b23a1f;
+  /* 不设 background：这块要露出页面原始亮度，才是「选中了这里」。 */
+  pointer-events: none;
+  /* 巨大 box-shadow 铺满全屏当遮罩，中间这块自然挖空。 */
+  box-shadow: 0 0 0 9999px rgba(27, 26, 23, .42);
+  animation: cm-sel-glow 2s ease-in-out infinite;
+}
+.cm-sel-label {
+  position: absolute;
+  top: -27px;
+  left: -2px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: #b23a1f;
+  color: #ffffff;
+  border-radius: 4px 4px 0 0;
+  font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+}
+.cm-sel-size {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 3px 8px;
+  background: rgba(27, 26, 23, .82);
+  color: #ffffff;
+  border-radius: 4px;
+  font: 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: nowrap;
+}
+.cm-sel-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ffffff;
+  border: 2px solid #b23a1f;
+  border-radius: 2px;
+  animation: cm-sel-handle-pulse 1.6s ease-in-out infinite;
+}
+
+/* ── 底部操作条（框选完成后出现） ── */
+.cm-sel-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: none;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 18px;
+  background: #1b1a17;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .38);
+  z-index: 4;
+}
+.cm-sel-actions.is-visible { display: flex; animation: cm-sel-rise .22s cubic-bezier(.2, .8, .3, 1); }
+.cm-sel-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 4px;
+  border-right: 1px solid rgba(255, 255, 255, .16);
+}
+.cm-sel-readout-size {
+  font: 600 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #ffffff;
+}
+.cm-sel-readout-note { font-size: 10.5px; color: #a8a69e; }
+.cm-sel-btn {
+  height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 6px;
+  background: transparent;
+  color: #e8e6de;
+  font-family: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cm-sel-btn:hover { border-color: rgba(255, 255, 255, .6); color: #ffffff; }
+.cm-sel-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 6px;
+  background: #b23a1f;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(178, 58, 31, .4);
+}
+.cm-sel-btn-primary:hover { background: #c2421f; }
+.cm-sel-btn-primary:focus-visible,
+.cm-sel-btn:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+/* ── 动画 ── */
+@keyframes cm-sel-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cm-sel-breathe {
+  0%, 100% { opacity: .92; }
+  50% { opacity: 1; }
+}
+@keyframes cm-sel-drag {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(6px, 6px); }
+}
+/* 选区边缘脉冲改用 outline，避免与遮罩用的 box-shadow 抢同一个属性。 */
+@keyframes cm-sel-glow {
+  0%, 100% { outline: 3px solid rgba(178, 58, 31, .0); outline-offset: 0; }
+  50% { outline: 3px solid rgba(178, 58, 31, .28); outline-offset: 2px; }
+}
+@keyframes cm-sel-handle-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(178, 58, 31, .5); }
+  50% { box-shadow: 0 0 0 4px rgba(178, 58, 31, 0); }
+}
+@keyframes cm-sel-rise {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-sel-overlay,
+  .cm-sel-hint,
+  .cm-sel-hint-icon,
+  .cm-sel-box,
+  .cm-sel-handle,
+  .cm-sel-actions.is-visible { animation: none; }
+}

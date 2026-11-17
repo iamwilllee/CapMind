@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>选择类型 · 长周期事项</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b23a1f}a:hover{color:#8a2c17}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.display{font-family:"Space Grotesk",-apple-system,sans-serif;font-weight:700;letter-spacing:-0.05em}
+.corner{position:absolute;width:9px;height:9px;border:0 solid var(--accent)}
+.ctl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+.ctr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+.cbl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+.cbr{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+.fld{margin-bottom:9px}
+.fld label{display:block;font-size:10.5px;color:var(--ink2);margin-bottom:2px}
+.fld input{width:100%;box-sizing:border-box;height:44px;padding:0 2px;border:0;border-bottom:1px solid var(--line);background:transparent;font-family:inherit;font-size:12px;color:var(--ink)}
+.ms-edit{display:flex;align-items:center;justify-content:space-between;height:36px;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--ink2)}
+</style>
+</helmet>
+<div style="width:380px;height:840px;box-sizing:border-box;--ground:#F0F0ED;--paper:#FFFFFF;--ink:#1B1A17;--ink2:#514F49;--ink3:#6B6962;--line:#D6D4CB;--accent:{{accent}};background:var(--ground);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)">
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);background:var(--paper)">
+    <div style="display:flex;align-items:center;gap:9px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      <span style="font-size:12px;font-weight:700;letter-spacing:0.08em">CAPMIND</span>
+      <span class="mono" style="font-size:9px;color:var(--ink3)">v0.2</span>
+    </div>
+    <button aria-label="关闭侧边栏" style="width:44px;height:44px;display:grid;place-items:center;color:var(--ink3)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--paper)">
+    <button style="flex:1;font-size:10.5px;color:var(--ink3)" class="mono">01 圈选</button>
+    <button style="flex:1;font-size:10.5px;font-weight:600;background:var(--ink);color:#ffffff;border-left:1px solid var(--line)" class="mono">02 选择类型</button>
+    <button style="flex:1;font-size:10.5px;color:var(--ink3);border-left:1px solid var(--line)" class="mono">03 填写保存</button>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:hidden;padding:14px 16px 0">
+
+    <div style="position:relative;border:1px solid var(--line);background:var(--paper);padding:11px 12px">
+      <i class="corner ctl"></i><i class="corner ctr"></i><i class="corner cbl"></i><i class="corner cbr"></i>
+      <div class="mono" style="font-size:9.5px;color:var(--ink3)">刚圈选的内容 · X034 Y210</div>
+      <div style="font-size:12px;line-height:1.6;margin-top:7px">ICP 备案审核一般 20 个工作日，通过后下发备案号。</div>
+      <div class="mono" style="font-size:10px;color:var(--ink3);margin-top:7px">beian.miit.gov.cn · OCR 识别</div>
+    </div>
+
+    <div class="display" style="font-size:15px;margin:18px 0 10px">记成什么？</div>
+
+    <div style="display:flex;gap:8px">
+      <button style="flex:1;min-height:80px;text-align:left;padding:11px 10px;border:1px solid var(--line);background:var(--paper)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink3)" stroke-width="1.8" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+        <div style="font-size:11.5px;font-weight:700;margin-top:8px">每日签到</div>
+        <div style="font-size:10px;color:var(--ink3);line-height:1.45;margin-top:3px">识别按钮与判据，每天自动执行</div>
+      </button>
+      <div style="position:relative;flex:1;min-height:80px;padding:11px 10px;border:2px solid var(--accent);background:var(--paper)">
+        <i class="corner ctl" style="left:-2px;top:-2px"></i><i class="corner ctr" style="right:-2px;top:-2px"></i><i class="corner cbl" style="left:-2px;bottom:-2px"></i><i class="corner cbr" style="right:-2px;bottom:-2px"></i>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div style="font-size:11.5px;font-weight:700;margin-top:8px;color:var(--accent)">长周期事项</div>
+        <div style="font-size:10px;color:var(--ink2);line-height:1.45;margin-top:3px">记录进度，定期回来问你</div>
+      </div>
+    </div>
+
+    <div style="height:18px"></div>
+
+    <div class="fld"><label for="m-name">名称</label><input id="m-name" type="text" value="网站 ICP 备案"></div>
+    <div class="fld"><label for="m-note">备注</label><input id="m-note" type="text" value="管局审核一般 20 个工作日"></div>
+
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+      <div class="fld"><label for="m-days">预计耗时</label><input id="m-days" type="text" value="30 天"></div>
+      <div class="fld"><label for="m-review">回访频率</label><input id="m-review" type="text" value="每 7 天"></div>
+    </div>
+
+    <div style="font-size:10.5px;color:var(--ink2);margin:8px 0 2px">里程碑</div>
+    <div class="ms-edit"><span>提交材料</span><span class="mono" style="font-size:10px;color:var(--ink3)">1</span></div>
+    <div class="ms-edit"><span>接入商初审</span><span class="mono" style="font-size:10px;color:var(--ink3)">2</span></div>
+    <div class="ms-edit"><span>管局审核</span><span class="mono" style="font-size:10px;color:var(--ink3)">3</span></div>
+    <div class="ms-edit"><span>备案号下发</span><span class="mono" style="font-size:10px;color:var(--ink3)">4</span></div>
+    <button style="height:44px;width:100%;text-align:left;font-size:11px;color:var(--accent);font-weight:600">+ 添加里程碑</button>
+
+  </div>
+
+  <div style="height:56px;flex:0 0 56px;display:flex;align-items:center;gap:8px;padding:0 14px;border-top:1px solid var(--line);background:var(--paper)">
+    <button style="height:44px;padding:0 14px;border:1px solid var(--ink3);font-size:12px;color:var(--ink2)">取消</button>
+    <button style="flex:1;height:44px;background:var(--accent);color:#ffffff;font-size:12px;font-weight:600">保存事项</button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B23A1F","options":["#B23A1F","#8A5A16","#3F6B4A"]},"$preview":{"width":380,"height":840}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B23A1F' };
+}
+}
+</script>
+</body>
+</html>

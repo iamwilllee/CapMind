@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>圈选 · 网页上的选区</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b23a1f}a:hover{color:#8a2c17}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.display{font-family:"Space Grotesk",-apple-system,sans-serif;font-weight:700;letter-spacing:-0.05em}
+.webcard{border:1px solid var(--line);background:var(--paper);padding:14px 16px}
+</style>
+</helmet>
+<div style="width:900px;height:680px;box-sizing:border-box;--ground:#F0F0ED;--paper:#FFFFFF;--ink:#1B1A17;--ink2:#514F49;--ink3:#6B6962;--line:#D6D4CB;--grid:#E2E0D7;--accent:{{accent}};background:var(--ground);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)">
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:center;gap:14px;padding:0 16px;border-bottom:1px solid var(--line);background:var(--paper)">
+    <div style="display:flex;align-items:center;gap:8px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      <span class="mono" style="font-size:10px;letter-spacing:0.06em">CAPTURE MODE</span>
+    </div>
+    <div class="mono" style="flex:1;font-size:11px;color:var(--ink2);border:1px solid var(--line);padding:6px 10px">https://aihot.news/free-tokens</div>
+    <span class="mono" style="font-size:10px;color:var(--ink3)">aihot.news · 已登录</span>
+  </div>
+
+  <div style="height:48px;flex:0 0 48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--ink);color:#ffffff">
+    <div style="font-size:12.5px;font-weight:600">圈选一块，教 CapMind 怎么签到</div>
+    <div style="display:flex;align-items:center;gap:18px">
+      <span style="font-size:11px;color:#d8d6ce">拖拽选择区域</span>
+      <span class="mono" style="font-size:10px;color:#d8d6ce;border:1px solid #ffffff66;padding:4px 8px">ESC 取消</span>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;position:relative;overflow:hidden;padding:24px 30px">
+
+    <div style="position:absolute;inset:0;pointer-events:none">
+      <i style="position:absolute;left:0;right:0;top:88px;height:1px;background:var(--grid)"></i>
+      <i style="position:absolute;left:0;right:0;top:176px;height:1px;background:var(--grid)"></i>
+      <i style="position:absolute;left:0;right:0;top:264px;height:1px;background:var(--grid)"></i>
+      <i style="position:absolute;left:0;right:0;top:352px;height:1px;background:var(--grid)"></i>
+      <i style="position:absolute;top:0;bottom:0;left:150px;width:1px;background:var(--grid)"></i>
+      <i style="position:absolute;top:0;bottom:0;left:300px;width:1px;background:var(--grid)"></i>
+      <i style="position:absolute;top:0;bottom:0;left:450px;width:1px;background:var(--grid)"></i>
+      <i style="position:absolute;top:0;bottom:0;left:600px;width:1px;background:var(--grid)"></i>
+      <i style="position:absolute;top:0;bottom:0;left:750px;width:1px;background:var(--grid)"></i>
+    </div>
+
+    <div style="position:relative">
+      <div class="display" style="font-size:26px">Token 羊毛</div>
+      <div style="font-size:12px;color:var(--ink2);margin-top:5px">能免费领的大模型额度，按官方价折成人民币。</div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:20px">
+        <div class="webcard">
+          <div style="font-size:11px;color:var(--ink2)">今天还能领</div>
+          <div class="display" style="font-size:30px;margin-top:6px">¥598</div>
+        </div>
+        <div class="webcard">
+          <div style="font-size:11px;color:var(--ink2)">下次刷新</div>
+          <div class="display" style="font-size:30px;margin-top:6px">11:56</div>
+        </div>
+        <div class="webcard">
+          <div style="font-size:11px;color:var(--ink2)">我的卡册</div>
+          <div class="display" style="font-size:30px;margin-top:6px">57 张</div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;border:1px solid var(--line);padding:16px 20px;background:var(--paper);width:430px">
+        <div style="font-size:13px;font-weight:700">每日签到</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:12px">
+          <button style="height:44px;padding:0 18px;background:var(--ink);color:#ffffff;font-size:12px;font-weight:600">签到领额度</button>
+          <span style="font-size:11px;color:var(--ink2)">已连续 12 天</span>
+        </div>
+        <div class="mono" style="font-size:10.5px;color:var(--ink3);margin-top:12px">今日额度 ¥598 · 每日 00:00 刷新</div>
+      </div>
+    </div>
+
+    <div style="position:absolute;left:30px;top:200px;width:470px;height:150px;border:2px dashed var(--accent);box-shadow:0 0 0 9999px #1B1A1759">
+      <i style="position:absolute;left:-5px;top:-5px;width:9px;height:9px;background:var(--accent)"></i>
+      <i style="position:absolute;right:-5px;top:-5px;width:9px;height:9px;background:var(--accent)"></i>
+      <i style="position:absolute;left:-5px;bottom:-5px;width:9px;height:9px;background:var(--accent)"></i>
+      <i style="position:absolute;right:-5px;bottom:-5px;width:9px;height:9px;background:var(--accent)"></i>
+      <div style="position:absolute;left:-2px;top:-25px;height:23px;padding:0 9px;background:var(--accent);color:#ffffff;font-size:10.5px;line-height:23px" class="mono">选区 · X034 Y210</div>
+      <div class="mono" style="position:absolute;right:8px;bottom:7px;font-size:10px;color:var(--accent)">470 × 150</div>
+      <button style="position:absolute;right:-2px;bottom:-54px;height:44px;padding:0 18px;background:var(--accent);color:#ffffff;font-size:12px;font-weight:600">识别这块 →</button>
+    </div>
+
+  </div>
+
+  <div style="height:52px;flex:0 0 52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-top:1px solid var(--line);background:var(--paper)">
+    <div style="display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--ink2)">
+      <span class="mono" style="color:var(--ink);font-weight:600">X 034 / Y 210 · W 470 / H 150</span>
+      <span style="color:var(--line)">|</span>
+      <span>1 个按钮 / 3 段文字 / 1 个金额</span>
+    </div>
+    <div class="mono" style="font-size:10px;color:var(--ink3)">抓取：选区截图 + DOM 摘要 + 当前 URL</div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B23A1F","options":["#B23A1F","#8A5A16","#3F6B4A"]},"$preview":{"width":900,"height":680}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B23A1F' };
+}
+}
+</script>
+</body>
+</html>

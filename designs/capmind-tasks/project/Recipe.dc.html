@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>识别结果 · 签到详情</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b23a1f}a:hover{color:#8a2c17}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.display{font-family:"Space Grotesk",-apple-system,sans-serif;font-weight:700;letter-spacing:-0.05em}
+.corner{position:absolute;width:9px;height:9px;border:0 solid var(--accent)}
+.ctl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+.ctr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+.cbl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+.cbr{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+.fld{margin-bottom:9px}
+.fld label{display:block;font-size:10.5px;color:var(--ink2);margin-bottom:2px}
+.fld input{width:100%;box-sizing:border-box;height:44px;padding:0 2px;border:0;border-bottom:1px solid var(--line);background:transparent;font-family:inherit;font-size:12px;color:var(--ink)}
+.fld input.mono{font-size:11px;color:var(--ink2)}
+.chip{display:inline-block;font-size:10.5px;padding:7px 9px;border:1px dashed var(--accent);color:var(--accent)}
+.kv{display:flex;align-items:baseline;justify-content:space-between;font-size:10.5px;padding:5px 0;border-bottom:1px solid var(--line)}
+</style>
+</helmet>
+<div style="width:380px;height:840px;box-sizing:border-box;--ground:#F0F0ED;--paper:#FFFFFF;--ink:#1B1A17;--ink2:#514F49;--ink3:#6B6962;--line:#D6D4CB;--accent:{{accent}};--ok:#3F6B4A;--ok-bg:#EDF2EC;background:var(--ground);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)">
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);background:var(--paper)">
+    <div style="display:flex;align-items:center;gap:9px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      <span style="font-size:12px;font-weight:700;letter-spacing:0.08em">CAPMIND</span>
+      <span class="mono" style="font-size:9px;color:var(--ink3)">v0.2</span>
+    </div>
+    <button aria-label="关闭侧边栏" style="width:44px;height:44px;display:grid;place-items:center;color:var(--ink3)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--paper)">
+    <button style="flex:1;font-size:10.5px;color:var(--ink3)" class="mono">01 圈选</button>
+    <button style="flex:1;font-size:10.5px;font-weight:600;background:var(--ink);color:#ffffff;border-left:1px solid var(--line)" class="mono">02 识别结果</button>
+    <button style="flex:1;font-size:10.5px;color:var(--ink3);border-left:1px solid var(--line)" class="mono">03 试跑保存</button>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:hidden;padding:0 16px">
+
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 0 4px;font-size:10.5px;color:var(--ink3)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      返回选区
+    </div>
+    <div class="display" style="font-size:24px;padding-bottom:12px">识别结果</div>
+
+    <div style="position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;padding:10px;border:1px solid var(--line);background:var(--paper)">
+      <i class="corner ctl"></i><i class="corner ctr"></i><i class="corner cbl"></i><i class="corner cbr"></i>
+      <div style="font-size:10.5px;line-height:1.6;color:var(--ink2)">
+        <span style="color:var(--accent);font-weight:700">AI 识别生成</span> · 置信度 92%<br>每个字段都可以改
+      </div>
+      <button style="height:44px;padding:0 10px;border:1px solid var(--ink3);font-size:10.5px;color:var(--ink2);white-space:nowrap">改用 OCR</button>
+    </div>
+
+    <div class="fld"><label for="r-name">名称</label><input id="r-name" type="text" value="AIHOT · Token 羊毛"></div>
+    <div class="fld"><label for="r-url">网页地址</label><input id="r-url" class="mono" type="text" value="https://aihot.news/free-tokens"></div>
+    <div class="fld"><label for="r-sel">签到按钮</label><input id="r-sel" class="mono" type="text" value="button[data-action=checkin]"></div>
+    <div class="fld"><label for="r-hint">按钮文案 · 执行前校验，防止点错</label><input id="r-hint" type="text" value="签到领额度"></div>
+
+    <div style="margin-bottom:10px">
+      <label style="display:block;font-size:10.5px;color:var(--ink2);margin-bottom:6px">已领过的判据 · 命中就不点</label>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span class="chip">今日已领取</span><span class="chip">明日再来</span>
+        <button style="height:44px;padding:0 9px;border:1px solid var(--line);font-size:10.5px;color:var(--ink2)">编辑</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:13px">
+      <label style="display:block;font-size:10.5px;color:var(--ink2);margin-bottom:6px">领取成功的判据</label>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <span class="chip">领取成功</span><span class="chip">+100 积分</span>
+        <button style="height:44px;padding:0 9px;border:1px solid var(--line);font-size:10.5px;color:var(--ink2)">编辑</button>
+      </div>
+    </div>
+
+    <div style="border:1px solid var(--ok);background:var(--ok-bg);padding:11px 12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--ok)">
+        <span>试跑一次 · 通过</span><span class="mono" style="font-size:10px;font-weight:400">09:42</span>
+      </div>
+      <div class="kv" style="margin-top:8px;border-bottom-color:#3F6B4A33"><span class="mono">01</span><span style="flex:1;margin-left:10px;color:var(--ink2)">按钮文案匹配「签到领额度」</span><span class="mono" style="color:var(--ok)">PASS</span></div>
+      <div class="kv" style="border-bottom-color:#3F6B4A33"><span class="mono">02</span><span style="flex:1;margin-left:10px;color:var(--ink2)">未命中已领判据，执行点击</span><span class="mono" style="color:var(--ok)">PASS</span></div>
+      <div class="kv" style="border-bottom:0"><span class="mono">03</span><span style="flex:1;margin-left:10px;color:var(--ink2)">命中成功判据「领取成功」</span><span class="mono" style="color:var(--ok)">PASS</span></div>
+      <div style="font-size:10.5px;color:var(--ink2);margin-top:8px;padding-top:8px;border-top:1px solid #3F6B4A33">这会真的点一次，今日额度已领取。</div>
+    </div>
+
+  </div>
+
+  <div style="height:56px;flex:0 0 56px;display:flex;align-items:center;gap:6px;padding:0 14px;border-top:1px solid var(--line);background:var(--paper)">
+    <button style="height:44px;padding:0 9px;border:1px solid var(--ink3);font-size:10.5px;color:var(--ink2)">重新圈选</button>
+    <button style="height:44px;padding:0 9px;border:1px solid var(--ink3);font-size:10.5px;color:var(--ink2)">试跑一次</button>
+    <button style="flex:1;height:44px;background:var(--accent);color:#ffffff;font-size:11.5px;font-weight:600">保存并启用</button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B23A1F","options":["#B23A1F","#8A5A16","#3F6B4A"]},"$preview":{"width":380,"height":840}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B23A1F' };
+}
+}
+</script>
+</body>
+</html>

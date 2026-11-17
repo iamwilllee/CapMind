@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CapMind 测试页 · 图片按钮与画布按钮</title>
+<style>
+  body { margin: 0; padding: 40px 48px; background: #f7f7f5; color: #1b1a17;
+         font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 820px; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -.02em; }
+  .sub { font-size: 13px; color: #6b6962; margin-bottom: 28px; }
+  .case { border: 1px solid #d6d4cb; background: #fff; padding: 18px 20px; margin-bottom: 18px; }
+  .case h2 { font-size: 14px; margin: 0 0 4px; }
+  .case .desc { font-size: 11.5px; color: #6b6962; margin-bottom: 14px; line-height: 1.6; }
+  .case .expect { font-size: 11px; color: #3f6b4a; margin-top: 10px; }
+  .status { margin-top: 10px; font-size: 12px; min-height: 18px; font-weight: 600; color: #3f6b4a; }
+  button { font: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+  .imgbtn { display: inline-block; line-height: 0; }
+  .imgbtn img { display: block; height: 44px; width: 160px; }
+  .sprite { width: 160px; height: 44px; border: 1px solid #1b1a17; display: flex;
+            align-items: center; justify-content: center; font-size: 12px; font-weight: 600;
+            background: #1b1a17; color: #fff; }
+  canvas { display: block; border: 1px solid #1b1a17; }
+  .tip { margin-top: 30px; border-left: 3px solid #b23a1f; padding: 10px 14px;
+         background: #fff; font-size: 12px; line-height: 1.7; color: #514f49; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>图片按钮与画布按钮</h1>
+  <div class="sub">验证 DOM 无法直接读到文案时的识别与执行 · 不需要登录 · 不发任何网络请求</div>
+
+  <!-- 用例 1：<button> 里只有一个 <img alt> -->
+  <div class="case" id="case-alt">
+    <h2>用例 1 · 按钮内嵌图片，有 alt</h2>
+    <div class="desc">
+      结构：<code>&lt;button&gt;&lt;img alt="签到领额度"&gt;&lt;/button&gt;</code><br>
+      textContent 为空，文案只存在于 img 的 alt 上。
+    </div>
+    <button type="button" class="imgbtn" data-action="case1">
+      <img alt="签到领额度" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='44'><rect width='160' height='44' fill='%231b1a17'/><text x='80' y='27' fill='white' font-size='12' font-family='sans-serif' font-weight='600' text-anchor='middle'>签到领额度</text></svg>">
+    </button>
+    <div class="status" id="s1"></div>
+    <div class="expect">期望：textHint = 「签到领额度」，textHintSource = attr，可正常校验。</div>
+  </div>
+
+  <!-- 用例 2：<button> 里只有一个 <img>，只有文件名有语义 -->
+  <div class="case" id="case-src">
+    <h2>用例 2 · 按钮内嵌图片，只有文件名有语义</h2>
+    <div class="desc">
+      结构：<code>&lt;button&gt;&lt;img src="btn_checkin_claim@2x.png"&gt;&lt;/button&gt;</code><br>
+      无 alt、无 title、无 aria-label，只能从 src 文件名推断。
+    </div>
+    <button type="button" class="imgbtn" data-action="case2">
+      <img alt="" src="btn_checkin_claim@2x.png" style="background:#1b1a17">
+    </button>
+    <div class="status" id="s2"></div>
+    <div class="expect">期望：textHint = 「btn checkin claim」，textHintSource = attr。</div>
+  </div>
+
+  <!-- 用例 3：纯 CSS sprite，连文件名都没有 -->
+  <div class="case" id="case-sprite">
+    <h2>用例 3 · 纯 CSS 背景图，无任何文案来源</h2>
+    <div class="desc">
+      结构：<code>&lt;div role="button"&gt;</code>，文字画在背景图里，元素本身没有文字、没有 alt、没有可读文件名。<br>
+      这是唯一必须靠 OCR 才能读出文字的形态。
+    </div>
+    <div role="button" tabindex="0" class="sprite" data-action="case3"></div>
+    <div class="status" id="s3"></div>
+    <div class="expect">期望：能选中按钮、textHintSource = none，执行时只校验元素存在，不应误判「文案不匹配」。</div>
+  </div>
+
+  <!-- 用例 4：canvas 绘制，且不是 button/a -->
+  <div class="case" id="case-canvas">
+    <h2>用例 4 · canvas 自绘按钮</h2>
+    <div class="desc">
+      结构：<code>&lt;canvas&gt;</code>，文字用 <code>fillText</code> 画上去。<br>
+      没有语义标签、textContent 为空，elementsInRect 挑不出来，只能靠中心点兜底。
+    </div>
+    <canvas id="cv" width="180" height="48" data-action="case4"></canvas>
+    <div class="status" id="s4"></div>
+    <div class="expect">期望：走 elementsFromPoint 兜底拿到 canvas 节点，selector 可用，textHintSource = none。</div>
+  </div>
+
+  <!-- 用例 5：文字包在 span 里（最常见的框架输出结构） -->
+  <div class="case" id="case-span">
+    <h2>用例 5 · 文字包在 span 里</h2>
+    <div class="desc">
+      结构：<code>&lt;button&gt;&lt;span&gt;签到领额度&lt;/span&gt;&lt;/button&gt;</code><br>
+      React/Vue 组件的典型输出。直接文本节点为空，文字在后代 span 里。
+    </div>
+    <button type="button" data-action="case5"><span>签到领额度</span></button>
+    <div class="status" id="s5"></div>
+    <div class="expect">期望：textHint = 「签到领额度」，textHintSource = text（不能退化成 none）。</div>
+  </div>
+
+  <div class="tip">
+    每个用例独立。框选后点「识别这块 →」，看侧栏「按钮选择器」「文案校验」两行是否符合上面的期望。<br>
+    「试跑一次」会真的点一次，成功后状态变绿。刷新页面可重置。
+  </div>
+</div>
+
+<script>
+  function bind(sel, statusId, okText) {
+    var el = document.querySelector(sel);
+    var st = document.getElementById(statusId);
+    if (!el || !st) return;
+    var done = false;
+    var handler = function () {
+      if (done) return;
+      done = true;
+      st.textContent = okText;
+    };
+    el.addEventListener('click', handler);
+  }
+  bind('[data-action="case1"]', 's1', '领取成功 +100 积分');
+  bind('[data-action="case2"]', 's2', '领取成功 +100 积分');
+  bind('[data-action="case3"]', 's3', '领取成功 +100 积分');
+  bind('[data-action="case5"]', 's5', '领取成功 +100 积分');
+
+  // 用例 4：canvas 画出来的按钮
+  var cv = document.getElementById('cv');
+  if (cv) {
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#1b1a17';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '600 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('签到领额度', cv.width / 2, cv.height / 2);
+    var done4 = false;
+    cv.addEventListener('click', function () {
+      if (done4) return;
+      done4 = true;
+      ctx.fillStyle = '#e4e2d9';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.fillStyle = '#3f6b4a';
+      ctx.fillText('领取成功 +100 积分', cv.width / 2, cv.height / 2);
+      document.getElementById('s4').textContent = '领取成功 +100 积分';
+    });
+  }
+</script>
+</body>
+</html>

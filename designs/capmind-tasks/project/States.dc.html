@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>通知 · 空状态 · 设计规范</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b23a1f}a:hover{color:#8a2c17}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.display{font-family:"Space Grotesk",-apple-system,sans-serif;font-weight:700;letter-spacing:-0.05em}
+.sec{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:10px}
+.note{font-size:10.5px;line-height:1.65;color:var(--ink3)}
+.ntf{display:flex;gap:10px;padding:12px;border:1px solid var(--line);background:var(--paper)}
+.ic{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border:1px solid var(--line)}
+.sw{border:1px solid var(--line);overflow:hidden}
+.sw i{display:block;height:32px}
+.sw span{display:block;padding:6px 7px;font-size:9px;color:var(--ink2);line-height:1.5}
+.tk-state{display:flex;align-items:center;gap:9px;font-size:10.5px;color:var(--ink2);padding:5px 0}
+.tk-state i{width:9px;height:9px;flex:0 0 9px}
+.tk-type{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding:6px 0}
+.tk-type b{font-size:9.5px;color:var(--ink3);width:38px;flex:0 0 38px}
+.pr{margin:0;padding-left:16px;font-size:10.5px;line-height:1.7;color:var(--ink2)}
+.pr li{margin-bottom:6px}
+</style>
+</helmet>
+<div style="width:700px;height:840px;box-sizing:border-box;--ground:#F0F0ED;--paper:#FFFFFF;--ink:#1B1A17;--ink2:#514F49;--ink3:#6B6962;--line:#D6D4CB;--accent:{{accent}};--ok:#3F6B4A;--wait:#8A5A16;--warm:#F6EFEA;background:var(--ground);color:var(--ink);display:flex;gap:22px;padding:20px;border:1px solid var(--line)">
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:15px">
+
+    <div>
+      <div class="sec">只有需要你动手时才出现</div>
+      <div class="note">成功与「已领过」一律静默。通知只在需人工、执行出错、回访日三种时机发出。</div>
+    </div>
+
+    <div class="ntf" style="border-left:3px solid var(--accent)">
+      <span class="ic" style="color:var(--accent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      </span>
+      <div style="flex:1;min-width:0">
+        <div class="mono" style="font-size:9.5px;color:var(--ink3)">CAPMIND · 09:39</div>
+        <div style="font-size:11.5px;font-weight:700;margin-top:4px">硅基流动签到没成功</div>
+        <div style="font-size:10.5px;color:var(--ink2);line-height:1.55;margin-top:4px">页面要求登录，没有找到签到按钮。已保留现场，没有输入你的凭据。</div>
+        <div style="display:flex;gap:14px;margin-top:8px">
+          <button style="font-size:10.5px;font-weight:700;color:var(--accent)">去登录</button>
+          <button style="font-size:10.5px;font-weight:700;color:var(--accent)">重新圈选</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ntf" style="border-left:3px solid var(--wait)">
+      <span class="ic" style="color:var(--wait)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      </span>
+      <div style="flex:1;min-width:0">
+        <div class="mono" style="font-size:9.5px;color:var(--ink3)">CAPMIND · 回访提醒</div>
+        <div style="font-size:11.5px;font-weight:700;margin-top:4px">备案 · 已过 14 天，到哪一步了？</div>
+        <div style="font-size:10.5px;color:var(--ink2);line-height:1.55;margin-top:4px">当前停在「管局审核」。告诉我进展，或者推迟一周再看。</div>
+        <div style="display:flex;gap:14px;margin-top:8px">
+          <button style="font-size:10.5px;font-weight:700;color:var(--accent)">打开事项</button>
+          <button style="font-size:10.5px;font-weight:700;color:var(--accent)">延期一周</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec">右键捕获</div>
+      <div style="width:240px;border:1px solid var(--line);background:var(--paper);padding:4px">
+        <div style="font-size:10.5px;padding:7px 9px;color:var(--ink2)">在新标签页中打开链接</div>
+        <div style="font-size:10.5px;padding:7px 9px;color:var(--ink2)">复制图片地址</div>
+        <div style="font-size:10.5px;padding:7px 9px;background:var(--ink);color:#ffffff;font-weight:600">圈选这一块，记成事项</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec">空状态</div>
+      <div style="border:1px dashed var(--accent);padding:16px 14px;font-size:11px;line-height:1.7;color:var(--ink2);background:var(--paper)">
+        还没有事项。<br>在任意网页圈选一块，教它替你签到。
+      </div>
+    </div>
+
+    <div style="margin-top:auto;border-top:1px solid var(--line);padding-top:12px" class="note">
+      边界：浏览器需要保持打开，自动签到才会执行。关机期间不跑，重新打开后补领漏掉的任务。
+    </div>
+
+  </div>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:17px">
+
+    <div>
+      <div class="display" style="font-size:20px">取景框 / Viewfinder</div>
+      <div class="note" style="margin-top:6px">从「在网页上框一块」出发：朱砂红笔做圈选与需处理，墨黑做结构，坐标纸做底。没有蓝色，没有渐变。</div>
+    </div>
+
+    <div>
+      <div class="sec">色板</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px">
+        <div class="sw"><i style="background:#F0F0ED"></i><span class="mono">ground<br>#F0F0ED</span></div>
+        <div class="sw"><i style="background:#FFFFFF"></i><span class="mono">paper<br>#FFFFFF</span></div>
+        <div class="sw"><i style="background:#1B1A17"></i><span class="mono">ink<br>#1B1A17</span></div>
+        <div class="sw"><i style="background:#D6D4CB"></i><span class="mono">line<br>#D6D4CB</span></div>
+        <div class="sw"><i style="background:{{accent}}"></i><span class="mono">朱砂 / accent<br>#B23A1F</span></div>
+        <div class="sw"><i style="background:#3F6B4A"></i><span class="mono">苔绿 / ok<br>#3F6B4A</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec">状态语义 · 方形标记</div>
+      <div class="tk-state"><i style="background:var(--ok)"></i>已完成 / 已领取 — 不抢注意力</div>
+      <div class="tk-state"><i style="background:var(--wait)"></i>待回访 / 进行中 — 琥珀</div>
+      <div class="tk-state"><i style="background:var(--accent)"></i>需人工处理 — 页面上最亮</div>
+      <div class="tk-state"><i style="border:1px solid var(--ink3)"></i>已领过 / 无记录 — 空心</div>
+    </div>
+
+    <div>
+      <div class="sec">字体 · Space Grotesk / IBM Plex Mono</div>
+      <div class="tk-type"><b class="mono">36</b><span class="display" style="font-size:22px">11.13</span></div>
+      <div class="tk-type"><b class="mono">24</b><span class="display" style="font-size:17px">识别结果</span></div>
+      <div class="tk-type"><b class="mono">12.5</b><span style="font-size:12.5px;font-weight:600">AIHOT · Token 羊毛</span></div>
+      <div class="tk-type"><b class="mono">10</b><span class="mono" style="font-size:10px">09:31 / 04 05 / X034 Y210</span></div>
+    </div>
+
+    <div>
+      <div class="sec">原则</div>
+      <ul class="pr">
+        <li>取景框四角标与刻度尺是主题记忆点，用在圈选结果、配方卡与进度上。</li>
+        <li>直角细线代替圆角卡片；选中态是墨黑实底，不是彩色下划线。</li>
+        <li>形态即信息：签到是紧凑状态行，长周期是带刻度的区块。</li>
+        <li>次要文字 #6B6962 保证 4.5:1；主要控件 ≥44px；状态色同时用形状区分。</li>
+        <li>配方逐字段可编辑、可试跑，模型输出永不直接生效。</li>
+      </ul>
+    </div>
+
+    <div style="margin-top:auto;border-top:1px solid var(--line);padding-top:12px" class="note">
+      Tweaks 里可把朱砂换成琥珀 #8A5A16 或苔绿 #3F6B4A，整张画布的主色会一起变。
+    </div>
+
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B23A1F","options":["#B23A1F","#8A5A16","#3F6B4A"]},"$preview":{"width":700,"height":840}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B23A1F' };
+}
+}
+</script>
+</body>
+</html>

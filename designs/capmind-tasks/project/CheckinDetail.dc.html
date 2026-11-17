@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>签到详情 · 配方与历史</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#b23a1f}a:hover{color:#8a2c17}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.display{font-family:"Space Grotesk",-apple-system,sans-serif;font-weight:700;letter-spacing:-0.05em}
+.corner{position:absolute;width:9px;height:9px;border:0 solid var(--accent)}
+.ctl{left:-1px;top:-1px;border-left-width:2px;border-top-width:2px}
+.ctr{right:-1px;top:-1px;border-right-width:2px;border-top-width:2px}
+.cbl{left:-1px;bottom:-1px;border-left-width:2px;border-bottom-width:2px}
+.cbr{right:-1px;bottom:-1px;border-right-width:2px;border-bottom-width:2px}
+.kv{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:10.5px}
+.kv span:first-child{color:var(--ink3);flex:0 0 auto}
+.kv span:last-child{color:var(--ink2);text-align:right}
+.log{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:11px;line-height:1.55}
+</style>
+</helmet>
+<div style="width:380px;height:840px;box-sizing:border-box;--ground:#F0F0ED;--paper:#FFFFFF;--ink:#1B1A17;--ink2:#514F49;--ink3:#6B6962;--line:#D6D4CB;--grid:#E2E0D7;--accent:{{accent}};--ok:#3F6B4A;background:var(--ground);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)">
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);background:var(--paper)">
+    <div style="display:flex;align-items:center;gap:9px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      <span style="font-size:12px;font-weight:700;letter-spacing:0.08em">CAPMIND</span>
+      <span class="mono" style="font-size:9px;color:var(--ink3)">v0.2</span>
+    </div>
+    <button aria-label="关闭侧边栏" style="width:44px;height:44px;display:grid;place-items:center;color:var(--ink3)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div style="height:44px;flex:0 0 44px;display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--paper)">
+    <button style="flex:1;font-size:12px;font-weight:600;background:var(--ink);color:#ffffff">今日</button>
+    <button style="flex:1;font-size:12px;color:var(--ink2);border-left:1px solid var(--line)">全部</button>
+    <button style="flex:1;font-size:12px;color:var(--ink2);border-left:1px solid var(--line)">设置</button>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:hidden">
+
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 16px 2px;font-size:10.5px;color:var(--ink3)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      返回事项
+    </div>
+    <div class="display" style="font-size:21px;padding:2px 16px 12px">AIHOT · Token 羊毛</div>
+
+    <div style="position:relative;display:flex;align-items:baseline;gap:12px;margin:0 16px 14px;padding:12px;border:1px solid var(--line);background:var(--paper)">
+      <i class="corner ctl"></i><i class="corner ctr"></i><i class="corner cbl"></i><i class="corner cbr"></i>
+      <span class="display" style="font-size:30px">09:31</span>
+      <span style="font-size:11px;color:var(--ink2)">今日已完成 · 连续 12 天</span>
+    </div>
+
+    <div style="padding:0 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:11px;font-weight:700">签到配方</span>
+        <button style="height:44px;padding:0 10px;border:1px solid var(--ink3);font-size:10.5px;color:var(--ink2)">重新圈选识别</button>
+      </div>
+      <div class="kv"><span>生成方式</span><span>AI 识别 · 11-01</span></div>
+      <div class="kv"><span>置信度</span><span class="mono">92%</span></div>
+      <div class="kv"><span>按钮选择器</span><span class="mono">button[data-action=checkin]</span></div>
+      <div class="kv"><span>文案校验</span><span>签到领额度</span></div>
+      <div class="kv"><span>已领判据</span><span>今日已领取 / 明日再来</span></div>
+      <div class="kv" style="border-bottom:0"><span>上次校验</span><span class="mono">11-13 09:31</span></div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div style="padding:0 16px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:8px">近 30 天 <span class="mono" style="font-size:9.5px;font-weight:400;color:var(--ink3)">30 CELLS</span></div>
+      <div style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px">
+        <i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--accent)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i>
+        <i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--accent)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i>
+        <i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--ok)"></i><i style="aspect-ratio:1;background:var(--grid)"></i><i style="aspect-ratio:1;background:var(--paper);border:2px solid var(--ink)"></i>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:var(--ink3)">
+        <span>成功</span><span style="color:var(--accent)">需人工</span><span>今天</span>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div style="padding:0 16px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:2px">执行记录</div>
+      <div class="log"><span class="mono" style="flex:0 0 62px;font-size:10px;color:var(--ink3)">11-13 09:31</span><span style="color:var(--ink2)"><b style="color:var(--ink)">已领取</b><br>命中「领取成功」，未重复点击。</span></div>
+      <div class="log"><span class="mono" style="flex:0 0 62px;font-size:10px;color:var(--ink3)">11-09 09:44</span><span style="color:var(--ink2)"><b style="color:var(--accent)">需要登录</b><br>页面跳转登录页，已通知，10:02 手动补领。</span></div>
+      <div class="log"><span class="mono" style="flex:0 0 62px;font-size:10px;color:var(--ink3)">11-07 09:30</span><span style="color:var(--ink2)"><b style="color:var(--ink)">已领取</b><br>浏览器刚启动，自动补领。</span></div>
+    </div>
+
+  </div>
+
+  <div style="height:56px;flex:0 0 56px;display:flex;align-items:center;gap:8px;padding:0 14px;border-top:1px solid var(--line);background:var(--paper)">
+    <button style="flex:1;height:44px;background:var(--accent);color:#ffffff;font-size:12px;font-weight:600">立即签到</button>
+    <button style="height:44px;padding:0 14px;border:1px solid var(--ink3);font-size:12px;color:var(--ink2)">编辑配方</button>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#B23A1F","options":["#B23A1F","#8A5A16","#3F6B4A"]},"$preview":{"width":380,"height":840}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#B23A1F' };
+}
+}
+</script>
+</body>
+</html>
